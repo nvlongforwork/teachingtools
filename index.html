@@ -1,1230 +1,825 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teaching Tools</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap');
-
-        :root {
-            --primary: #6C5CE7;
-            --primary-light: #A29BFE;
-            --secondary: #00CEC9;
-            --accent: #FD79A8;
-            --warning: #FDCB6E;
-            --success: #00B894;
-            --danger: #E17055;
-            --bg: #F8F9FF;
-            --card-bg: #FFFFFF;
-            --text: #2D3436;
-            --text-light: #636E72;
-            --shadow: 0 8px 32px rgba(108, 92, 231, 0.15);
-            --shadow-hover: 0 12px 40px rgba(108, 92, 231, 0.25);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Baloo 2', cursive, sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Floating background decorations */
-        .bg-decoration {
-            position: fixed;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .bg-star {
-            width: 20px;
-            height: 20px;
-            background: var(--warning);
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            animation: twinkle 3s ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
-            50% { opacity: 1; transform: scale(1.2) rotate(20deg); }
-        }
-
-        .bg-circle {
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float-bg 6s ease-in-out infinite;
-        }
-
-        @keyframes float-bg {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
-        }
-
-        /* ========== LOGIN SCREEN ========== */
-        #login-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 16px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .login-container {
-            background: var(--card-bg);
-            border-radius: 30px;
-            padding: 50px 40px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            max-width: 420px;
-            width: 100%;
-            transform: translateY(0);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .login-container:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .login-logo {
-            font-size: 80px;
-            margin-bottom: 10px;
-            animation: bounce-logo 2s ease-in-out infinite;
-        }
-
-        @keyframes bounce-logo {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .login-title {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-        }
-
-        .login-subtitle {
-            color: var(--text-light);
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
-
-        .password-input-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 16px 24px;
-            border: 3px solid #E8E8F0;
-            border-radius: 16px;
-            font-size: 20px;
-            font-family: 'Baloo 2', cursive;
-            text-align: center;
-            letter-spacing: 8px;
-            outline: none;
-            transition: border-color 0.3s, transform 0.2s;
-        }
-
-        .password-input:focus {
-            border-color: var(--primary);
-            transform: scale(1.02);
-        }
-
-        .password-input.shake {
-            animation: shake 0.5s ease-in-out;
-            border-color: var(--danger);
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-10px); }
-            40% { transform: translateX(10px); }
-            60% { transform: translateX(-10px); }
-            80% { transform: translateX(10px); }
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 20px;
-            font-weight: 700;
-            font-family: 'Baloo 2', cursive;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
-        }
-
-        .login-btn:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-
-        .login-error {
-            color: var(--danger);
-            font-size: 14px;
-            margin-top: 12px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .login-error.visible {
-            opacity: 1;
-        }
-
-        /* ========== TOOLS MENU ========== */
-        #tools-screen {
-            display: none;
-            min-height: 100vh;
-            padding: 16px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .tools-header {
-            text-align: center;
-            padding: 30px 16px 20px;
-        }
-
-        .tools-header h1 {
-            font-size: 36px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .tools-header p {
-            color: var(--text-light);
-            font-size: 18px;
-            margin-top: 5px;
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 24px;
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 16px;
-        }
-
-        .tool-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 35px 25px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            border-radius: 24px 24px 0 0;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-12px) scale(1.03);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .tool-card:active {
-            transform: translateY(-4px) scale(0.98);
-        }
-
-        .tool-card .tool-icon {
-            font-size: 64px;
-            margin-bottom: 15px;
-            display: block;
-            transition: transform 0.3s;
-        }
-
-        .tool-card:hover .tool-icon {
-            transform: scale(1.15) rotate(-5deg);
-        }
-
-        .tool-card h3 {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .tool-card p {
-            font-size: 14px;
-            color: var(--text-light);
-            line-height: 1.4;
-        }
-
-        .tool-card.rocket-card::before { background: linear-gradient(90deg, var(--primary), var(--accent)); }
-        .tool-card.coming-soon { opacity: 0.5; cursor: not-allowed; }
-        .tool-card.coming-soon::before { background: #DDD; }
-        .tool-card.coming-soon:hover { transform: translateY(-4px) scale(1.01); }
-
-        .coming-badge {
-            display: inline-block;
-            background: var(--warning);
-            color: var(--text);
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-top: 10px;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--card-bg);
-            border: 2px solid #E8E8F0;
-            border-radius: 14px;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: 600;
-            font-family: 'Baloo 2', cursive;
-            cursor: pointer;
-            color: var(--text);
-            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-        }
-
-        .back-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow);
-            border-color: var(--primary);
-        }
-
-        /* ========== GROUP SCORING TOOL ========== */
-        #scoring-screen {
-            display: none;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Setup panel */
-        .setup-panel {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 40px 30px;
-            box-shadow: var(--shadow);
-            max-width: 500px;
-            margin: 60px auto;
-            text-align: center;
-        }
-
-        .setup-panel h2 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 25px;
-        }
-
-        .setup-field {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .setup-field label {
-            display: block;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .setup-field input, .setup-field select {
-            width: 100%;
-            padding: 14px 18px;
-            border: 3px solid #E8E8F0;
-            border-radius: 14px;
-            font-size: 18px;
-            font-family: 'Baloo 2', cursive;
-            outline: none;
-            transition: border-color 0.3s, transform 0.2s;
-        }
-
-        .setup-field input:focus, .setup-field select:focus {
-            border-color: var(--primary);
-            transform: scale(1.02);
-        }
-
-        .start-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--success), var(--secondary));
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 22px;
-            font-weight: 700;
-            font-family: 'Baloo 2', cursive;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .start-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0, 206, 201, 0.4);
-        }
-
-        /* Scoring game area */
-        #game-area {
-            display: none;
-            padding: 16px;
-            padding-bottom: 100px;
-        }
-
-        .game-header {
-            text-align: center;
-            padding: 15px 16px 10px;
-        }
-
-        .game-header h2 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .game-header .max-info {
-            font-size: 16px;
-            color: var(--text-light);
-            margin-top: 4px;
-        }
-
-        .groups-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 16px;
-        }
-
-        .group-lane {
-            position: relative;
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 20px 15px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
-            overflow: hidden;
-        }
-
-        .group-lane:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .group-lane h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .group-score {
-            font-size: 48px;
-            font-weight: 800;
-            margin: 5px 0;
-            transition: transform 0.3s;
-        }
-
-        .group-score.pop {
-            animation: score-pop 0.4s ease;
-        }
-
-        @keyframes score-pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.4); }
-            100% { transform: scale(1); }
-        }
-
-        /* Rocket track */
-        .rocket-track {
-            position: relative;
-            width: 100%;
-            height: 280px;
-            margin: 10px 0;
-            background: linear-gradient(180deg, #1A1A2E 0%, #16213E 40%, #0F3460 100%);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .stars-bg {
-            position: absolute;
-            inset: 0;
-        }
-
-        .star {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle-star 2s ease-in-out infinite;
-        }
-
-        @keyframes twinkle-star {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-
-        .moon {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 40px;
-            filter: drop-shadow(0 0 10px rgba(253, 203, 110, 0.6));
-            z-index: 2;
-        }
-
-        .rocket {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 36px;
-            z-index: 3;
-            transition: bottom 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-            filter: drop-shadow(0 0 8px rgba(253, 121, 168, 0.5));
-        }
-
-        .rocket.launching {
-            animation: rocket-shake 0.3s ease-in-out;
-        }
-
-        @keyframes rocket-shake {
-            0%, 100% { transform: translateX(-50%) rotate(0deg); }
-            25% { transform: translateX(-50%) rotate(-5deg); }
-            75% { transform: translateX(-50%) rotate(5deg); }
-        }
-
-        .rocket-flame {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-            z-index: 2;
-            opacity: 0;
-            transition: bottom 1s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
-        }
-
-        .rocket-flame.visible {
-            opacity: 1;
-            animation: flame-flicker 0.2s ease-in-out infinite alternate;
-        }
-
-        @keyframes flame-flicker {
-            0% { transform: translateX(-50%) scaleY(1); }
-            100% { transform: translateX(-50%) scaleY(1.3); }
-        }
-
-        /* Progress bar on track */
-        .track-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .track-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--success), var(--warning));
-            border-radius: 0 4px 4px 0;
-            transition: width 1s ease;
-        }
-
-        /* Point buttons */
-        .point-buttons {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .point-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            border: none;
-            font-size: 18px;
-            font-weight: 700;
-            font-family: 'Baloo 2', cursive;
-            cursor: pointer;
-            color: white;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
-        }
-
-        .point-btn:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-        }
-
-        .point-btn:active {
-            transform: translateY(-1px) scale(0.95);
-        }
-
-        .point-btn.p1 { background: linear-gradient(135deg, #00B894, #00CEC9); }
-        .point-btn.p2 { background: linear-gradient(135deg, #0984E3, #74B9FF); }
-        .point-btn.p3 { background: linear-gradient(135deg, #6C5CE7, #A29BFE); }
-        .point-btn.p4 { background: linear-gradient(135deg, #E17055, #FDCB6E); }
-        .point-btn.p5 { background: linear-gradient(135deg, #FD79A8, #E84393); }
-
-        /* Bottom bar */
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--card-bg);
-            padding: 14px 20px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            z-index: 50;
-        }
-
-        .end-btn {
-            padding: 12px 40px;
-            background: linear-gradient(135deg, var(--danger), var(--accent));
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 700;
-            font-family: 'Baloo 2', cursive;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .end-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(225, 112, 85, 0.4);
-        }
-
-        .reset-btn {
-            padding: 12px 30px;
-            background: var(--card-bg);
-            border: 3px solid #E8E8F0;
-            color: var(--text);
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 700;
-            font-family: 'Baloo 2', cursive;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-        }
-
-        .reset-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow);
-            border-color: var(--primary);
-        }
-
-        /* ========== WINNER OVERLAY ========== */
-        .winner-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 200;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .winner-overlay.active {
-            display: flex;
-        }
-
-        .winner-content {
-            text-align: center;
-            animation: winner-appear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes winner-appear {
-            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        .winner-trophy {
-            font-size: 100px;
-            animation: trophy-bounce 1s ease-in-out infinite;
-        }
-
-        @keyframes trophy-bounce {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-
-        .winner-title {
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--warning);
-            text-shadow: 0 0 40px rgba(253, 203, 110, 0.5);
-            margin: 20px 0 10px;
-        }
-
-        .winner-score {
-            font-size: 28px;
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .winner-rocket-scene {
-            width: 200px;
-            height: 300px;
-            margin: 0 auto 30px;
-            position: relative;
-            background: linear-gradient(180deg, #1A1A2E 0%, #16213E 40%, #0F3460 100%);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .winner-moon {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 50px;
-            filter: drop-shadow(0 0 15px rgba(253, 203, 110, 0.8));
-        }
-
-        .winner-rocket {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 44px;
-            animation: fly-to-moon 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-            filter: drop-shadow(0 0 12px rgba(253, 121, 168, 0.6));
-        }
-
-        @keyframes fly-to-moon {
-            0% { bottom: 10px; }
-            100% { bottom: 220px; }
-        }
-
-        .winner-flame-anim {
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 28px;
-            animation: fly-to-moon 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, flame-flicker 0.15s ease-in-out infinite alternate;
-        }
-
-        .winner-close-btn {
-            padding: 14px 50px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 20px;
-            font-weight: 700;
-            font-family: 'Baloo 2', cursive;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .winner-close-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
-        }
-
-        /* Confetti */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            border-radius: 2px;
-            z-index: 201;
-            animation: confetti-fall linear forwards;
-        }
-
-        @keyframes confetti-fall {
-            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* Point popup */
-        .point-popup {
-            position: absolute;
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--success);
-            pointer-events: none;
-            z-index: 10;
-            animation: popup-rise 1s ease-out forwards;
-        }
-
-        @keyframes popup-rise {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-60px) scale(1.5); }
-        }
-
-        /* Group colors */
-        .group-color-0 { --gc: #6C5CE7; }
-        .group-color-1 { --gc: #00CEC9; }
-        .group-color-2 { --gc: #FD79A8; }
-        .group-color-3 { --gc: #FDCB6E; }
-        .group-color-4 { --gc: #00B894; }
-        .group-color-5 { --gc: #E17055; }
-        .group-color-6 { --gc: #0984E3; }
-        .group-color-7 { --gc: #E84393; }
-        .group-color-8 { --gc: #A29BFE; }
-        .group-color-9 { --gc: #55E6C1; }
-
-        .group-lane h3 {
-            color: var(--gc);
-        }
-
-        .group-score {
-            color: var(--gc);
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .login-container { padding: 35px 25px; }
-            .login-logo { font-size: 60px; }
-            .login-title { font-size: 26px; }
-            .tools-header h1 { font-size: 28px; }
-            .game-header h2 { font-size: 22px; }
-            .groups-container { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-            .group-score { font-size: 36px; }
-            .rocket-track { height: 220px; }
-            .winner-title { font-size: 32px; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Background decorations -->
-    <div id="bg-decorations"></div>
-
-    <!-- ========== LOGIN SCREEN ========== -->
-    <div id="login-screen">
-        <div class="login-container">
-            <div class="login-logo">📚</div>
-            <h1 class="login-title">Teaching Tools</h1>
-            <p class="login-subtitle">Nhap mat khau de bat dau!</p>
-            <div class="password-input-wrapper">
-                <input type="password" id="password-input" class="password-input" placeholder="***" maxlength="10" autofocus>
-            </div>
-            <button class="login-btn" onclick="checkPassword()">Vao hoc thoi! 🚀</button>
-            <p class="login-error" id="login-error">Sai mat khau roi! Thu lai nhe 😊</p>
+<title>Teaching Tools</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka:wght@400;500;600;700&display=swap">
+<style>
+/* Teaching Tools — landscape-first classroom app for 16:9 / 16:10 screens */
+:root {
+    --bg: #F0F4FF;
+    --bg-card: #FFFFFF;
+    --fg: #2B2D42;
+    --fg-muted: #6B7280;
+    --primary: #6366F1;
+    --primary-light: #A5B4FC;
+    --secondary: #06B6D4;
+    --accent: #F472B6;
+    --success: #10B981;
+    --warning: #FBBF24;
+    --danger: #EF4444;
+    --border: #E5E7EB;
+    --shadow-sm: 0 2px 8px rgba(99,102,241,0.08);
+    --shadow-md: 0 8px 30px rgba(99,102,241,0.12);
+    --shadow-lg: 0 12px 40px rgba(99,102,241,0.18);
+    --radius: 20px;
+    --font-display: 'Fredoka', sans-serif;
+    --font-body: 'Nunito', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #1A1B2E;
+        --bg-card: #252640;
+        --fg: #E8E8F0;
+        --fg-muted: #9CA3AF;
+        --primary: #818CF8;
+        --primary-light: #6366F1;
+        --secondary: #22D3EE;
+        --accent: #F9A8D4;
+        --border: #374151;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+        --shadow-md: 0 8px 30px rgba(0,0,0,0.3);
+        --shadow-lg: 0 12px 40px rgba(0,0,0,0.35);
+        color-scheme: dark;
+    }
+}
+:root[data-theme="dark"] {
+    --bg: #1A1B2E;
+    --bg-card: #252640;
+    --fg: #E8E8F0;
+    --fg-muted: #9CA3AF;
+    --primary: #818CF8;
+    --primary-light: #6366F1;
+    --secondary: #22D3EE;
+    --accent: #F9A8D4;
+    --border: #374151;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+    --shadow-md: 0 8px 30px rgba(0,0,0,0.3);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.35);
+    color-scheme: dark;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===== BACKGROUND ===== */
+.bg-deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.bg-blob {
+    position: absolute; border-radius: 50%; opacity: 0.07;
+    animation: bfloat 8s ease-in-out infinite;
+}
+@keyframes bfloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(15px,-20px) scale(1.05); }
+    66% { transform: translate(-10px,10px) scale(0.95); }
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: flex; }
+
+/* ===== SHARED ===== */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 32px; border: none; border-radius: 14px;
+    font-family: var(--font-display); font-size: 1.2rem; font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
+    -webkit-tap-highlight-color: transparent;
+}
+.btn:hover { transform: translateY(-4px) scale(1.03); }
+.btn:active { transform: translateY(-1px) scale(0.97); }
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: #fff; box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+}
+.btn-primary:hover { box-shadow: 0 8px 24px rgba(99,102,241,0.4); }
+.btn-success {
+    background: linear-gradient(135deg, var(--success), var(--secondary));
+    color: #fff; box-shadow: 0 4px 16px rgba(16,185,129,0.3);
+}
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger), var(--accent));
+    color: #fff; box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+}
+.btn-ghost {
+    background: var(--bg-card); color: var(--fg); border: 2px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+
+/* ===== LOGIN ===== */
+#login {
+    display: none; height: 100%; min-height: 100vh;
+    align-items: center; justify-content: center; flex-direction: column;
+}
+#login.active { display: flex; }
+
+.login-box {
+    background: var(--bg-card); border-radius: var(--radius);
+    padding: 44px 48px; box-shadow: var(--shadow-lg);
+    text-align: center; max-width: 440px; width: 100%;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s;
+}
+.login-box:hover { transform: translateY(-10px); }
+
+.login-mascot {
+    font-size: 68px; display: block;
+    animation: bounce 2.5s ease-in-out infinite;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-12px) rotate(-3deg); }
+    75% { transform: translateY(-8px) rotate(3deg); }
+}
+
+.login-title {
+    font-family: var(--font-display); font-size: 2.2rem; font-weight: 700;
+    color: var(--primary); margin: 10px 0 4px;
+}
+.login-sub { color: var(--fg-muted); font-size: 1rem; margin-bottom: 24px; }
+
+.input-wrap { margin-bottom: 16px; }
+.input-wrap input {
+    width: 100%; padding: 14px 20px; border: 3px solid var(--border);
+    border-radius: 14px; font-size: 1.4rem; font-family: var(--font-body);
+    text-align: center; letter-spacing: 6px; background: var(--bg);
+    color: var(--fg); outline: none;
+    transition: border-color 0.25s, transform 0.2s;
+}
+.input-wrap input:focus { border-color: var(--primary); transform: scale(1.02); }
+.input-wrap input.shake { animation: shake 0.45s ease-in-out; border-color: var(--danger); }
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+.login-error {
+    color: var(--danger); font-size: 0.9rem; margin-top: 10px;
+    height: 22px; opacity: 0; transition: opacity 0.3s;
+}
+.login-error.show { opacity: 1; }
+
+/* ===== TOOLS MENU — landscape grid ===== */
+#menu {
+    height: 100%; min-height: 100vh;
+    flex-direction: column; align-items: center; justify-content: center;
+}
+
+.menu-header { text-align: center; margin-bottom: 24px; }
+.menu-header h1 {
+    font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; color: var(--primary);
+}
+.menu-header p { color: var(--fg-muted); font-size: 1.1rem; margin-top: 4px; }
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px; max-width: 1100px; width: 100%;
+}
+
+.tool-card {
+    background: var(--bg-card); border-radius: var(--radius);
+    padding: 32px 18px 26px; text-align: center;
+    box-shadow: var(--shadow-sm); cursor: pointer;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s;
+    border: 2px solid transparent;
+}
+.tool-card:hover {
+    transform: translateY(-10px) scale(1.04);
+    box-shadow: var(--shadow-lg); border-color: var(--primary-light);
+}
+.tool-card:active { transform: translateY(-3px) scale(0.98); }
+
+.tool-card .icon {
+    font-size: 56px; display: block; margin-bottom: 10px;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.tool-card:hover .icon { transform: scale(1.2) rotate(-8deg); }
+
+.tool-card h3 {
+    font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; margin-bottom: 4px;
+}
+.tool-card p { font-size: 0.85rem; color: var(--fg-muted); line-height: 1.4; }
+.tool-card.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+.badge-soon {
+    display: inline-block; background: var(--warning); color: #78350F;
+    font-size: 0.7rem; font-weight: 800; padding: 3px 10px;
+    border-radius: 10px; margin-top: 8px; font-family: var(--font-display);
+}
+
+/* ===== SCORING TOOL ===== */
+#scoring { flex-direction: column; height: 100%; min-height: 100vh; }
+
+.setup-box {
+    background: var(--bg-card); border-radius: var(--radius);
+    padding: 36px 40px; box-shadow: var(--shadow-md);
+    max-width: 480px; width: 100%; text-align: center;
+    margin: auto;
+}
+.setup-box h2 {
+    font-family: var(--font-display); font-size: 1.7rem; font-weight: 700;
+    color: var(--primary); margin-bottom: 20px;
+}
+
+.field { margin-bottom: 16px; text-align: left; }
+.field label {
+    display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 5px;
+}
+.field select, .field input[type="number"] {
+    width: 100%; padding: 12px 16px; border: 3px solid var(--border);
+    border-radius: 12px; font-size: 1.1rem; font-family: var(--font-body);
+    background: var(--bg); color: var(--fg); outline: none;
+    transition: border-color 0.25s, transform 0.2s; -webkit-appearance: none;
+}
+.field select:focus, .field input[type="number"]:focus {
+    border-color: var(--primary); transform: scale(1.02);
+}
+
+/* ===== GAME — landscape optimized ===== */
+#game {
+    display: flex; flex-direction: column;
+    height: 100vh; overflow: hidden;
+}
+
+.game-top {
+    text-align: center; padding: 10px 0 6px; flex-shrink: 0;
+}
+.game-top h2 {
+    font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--primary);
+}
+.game-top .goal { font-size: 0.95rem; color: var(--fg-muted); }
+
+.groups-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 12px;
+    flex: 1; min-height: 0;
+    padding-bottom: 68px;
+    align-content: stretch;
+}
+
+/* Group lane colors */
+.gc0 { --gc: #6366F1; } .gc1 { --gc: #06B6D4; } .gc2 { --gc: #F472B6; }
+.gc3 { --gc: #FBBF24; } .gc4 { --gc: #10B981; } .gc5 { --gc: #EF4444; }
+.gc6 { --gc: #8B5CF6; } .gc7 { --gc: #F59E0B; } .gc8 { --gc: #14B8A6; }
+.gc9 { --gc: #EC4899; }
+
+.group-lane {
+    background: var(--bg-card); border-radius: var(--radius);
+    padding: 10px 8px 8px; box-shadow: var(--shadow-sm);
+    text-align: center; display: flex; flex-direction: column;
+    border-top: 4px solid var(--gc);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+    min-width: 0;
+}
+.group-lane:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.group-lane h3 {
+    font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--gc);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.group-score {
+    font-family: var(--font-display); font-size: 2.6rem; font-weight: 800;
+    color: var(--gc); line-height: 1; font-variant-numeric: tabular-nums;
+}
+.group-score.pop { animation: pop 0.35s ease; }
+@keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+/* Rocket track — fills remaining height */
+.track {
+    position: relative; width: 100%; flex: 1; min-height: 120px;
+    margin: 4px 0;
+    background: linear-gradient(180deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+    border-radius: 12px; overflow: hidden;
+}
+
+.track .star {
+    position: absolute; background: #fff; border-radius: 50%;
+    animation: twinkle 2.5s ease-in-out infinite;
+}
+@keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.9; } }
+
+.track .moon-icon {
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    font-size: 28px; filter: drop-shadow(0 0 10px rgba(253,224,71,0.5)); z-index: 3;
+}
+.track .rocket-icon {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 26px; z-index: 4;
+    transition: bottom 0.9s cubic-bezier(0.34,1.56,0.64,1);
+    filter: drop-shadow(0 0 5px rgba(99,102,241,0.4));
+}
+.track .rocket-icon.shake { animation: rshake 0.3s ease; }
+@keyframes rshake {
+    0%, 100% { transform: translateX(-50%) rotate(0); }
+    25% { transform: translateX(-50%) rotate(-6deg); }
+    75% { transform: translateX(-50%) rotate(6deg); }
+}
+
+.track .flame {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 14px; z-index: 3; opacity: 0;
+    transition: bottom 0.9s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
+}
+.track .flame.on {
+    opacity: 1; animation: flicker 0.15s ease-in-out infinite alternate;
+}
+@keyframes flicker {
+    0% { transform: translateX(-50%) scaleY(1); }
+    100% { transform: translateX(-50%) scaleY(1.4); }
+}
+
+.track .progress-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: rgba(255,255,255,0.08);
+}
+.track .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--gc), var(--warning));
+    transition: width 0.9s ease; border-radius: 0 3px 3px 0;
+}
+
+.point-popup {
+    position: absolute; font-family: var(--font-display);
+    font-size: 1.4rem; font-weight: 800; color: var(--success);
+    pointer-events: none; z-index: 10; animation: rise 0.9s ease-out forwards;
+}
+@keyframes rise {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
+}
+
+/* Point buttons */
+.pts-row {
+    display: flex; gap: 4px; justify-content: center; flex-shrink: 0; padding-top: 4px;
+}
+.pt-btn {
+    flex: 1; max-width: 48px; height: 36px; border-radius: 10px; border: none;
+    font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
+    -webkit-tap-highlight-color: transparent;
+}
+.pt-btn:hover { transform: translateY(-4px) scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.pt-btn:active { transform: translateY(-1px) scale(0.94); }
+.pt1 { background: linear-gradient(135deg, #10B981, #06B6D4); }
+.pt2 { background: linear-gradient(135deg, #3B82F6, #60A5FA); }
+.pt3 { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
+.pt4 { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+.pt5 { background: linear-gradient(135deg, #EC4899, #F472B6); }
+
+/* Bottom bar */
+.bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg-card);
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    display: flex; justify-content: center; gap: 12px; z-index: 50;
+}
+
+.nav-btn {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top, 0px));
+    left: max(16px, env(safe-area-inset-left, 0px));
+    z-index: 60; font-size: 1rem; padding: 10px 20px;
+}
+
+/* ===== WINNER OVERLAY ===== */
+.overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88); z-index: 200;
+    align-items: center; justify-content: center;
+    padding: 16px;
+}
+.overlay.active { display: flex; }
+
+.winner-box {
+    text-align: center;
+    animation: appear 0.7s cubic-bezier(0.34,1.56,0.64,1);
+    display: flex; align-items: center; gap: 40px;
+    max-width: 900px; width: 100%;
+}
+@keyframes appear {
+    0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.winner-left { flex: 1; text-align: center; }
+
+.trophy {
+    font-size: 80px; display: block;
+    animation: tbounce 1.2s ease-in-out infinite;
+}
+@keyframes tbounce {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-14px) rotate(4deg); }
+}
+
+.winner-name {
+    font-family: var(--font-display); font-size: 2.6rem; font-weight: 800;
+    color: var(--warning); text-shadow: 0 0 30px rgba(251,191,36,0.4);
+    margin: 14px 0 6px;
+}
+.winner-pts { font-size: 1.3rem; color: #D1D5DB; margin-bottom: 20px; }
+
+.win-scene {
+    width: 200px; height: 300px; margin: 0 auto;
+    position: relative;
+    background: linear-gradient(180deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+    border-radius: 18px; overflow: hidden;
+}
+.win-scene .moon-icon {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    font-size: 44px; filter: drop-shadow(0 0 14px rgba(253,224,71,0.7));
+}
+.win-scene .win-rocket {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    font-size: 38px;
+    animation: flyUp 2.2s cubic-bezier(0.22,0.61,0.36,1) forwards;
+    filter: drop-shadow(0 0 10px rgba(99,102,241,0.5));
+}
+.win-scene .win-flame {
+    position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 22px;
+    animation: flyUp 2.2s cubic-bezier(0.22,0.61,0.36,1) forwards, flicker 0.12s ease-in-out infinite alternate;
+}
+@keyframes flyUp { 0% { bottom: 8px; } 100% { bottom: 220px; } }
+
+.confetti-piece {
+    position: fixed; z-index: 201; border-radius: 2px;
+    animation: cfall linear forwards; pointer-events: none;
+}
+@keyframes cfall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===== RESPONSIVE — portrait / small screens ===== */
+@media (max-width: 800px), (max-aspect-ratio: 4/3) {
+    .tools-grid { grid-template-columns: repeat(2, 1fr); }
+    .groups-grid {
+        grid-auto-flow: row;
+        grid-auto-columns: unset;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        overflow-y: auto;
+    }
+    #game { height: auto; min-height: 100vh; overflow: visible; }
+    .winner-box { flex-direction: column; gap: 16px; }
+    .winner-name { font-size: 2rem; }
+}
+
+@media (max-width: 500px) {
+    .login-title { font-size: 1.6rem; }
+    .menu-header h1 { font-size: 1.7rem; }
+    .tools-grid { gap: 10px; }
+    .tool-card { padding: 20px 12px 16px; }
+    .tool-card .icon { font-size: 38px; }
+    .group-score { font-size: 2rem; }
+}
+
+/* Landscape extra-wide: bigger elements */
+@media (min-width: 1200px) and (min-aspect-ratio: 3/2) {
+    .group-lane h3 { font-size: 1.15rem; }
+    .group-score { font-size: 3.2rem; }
+    .track .moon-icon { font-size: 34px; }
+    .track .rocket-icon { font-size: 30px; }
+    .pt-btn { height: 42px; font-size: 1.05rem; max-width: 56px; }
+}
+</style>
+
+<div class="bg-deco" id="bgDeco"></div>
+
+<!-- LOGIN -->
+<div id="login" class="active">
+    <div class="login-box">
+        <span class="login-mascot">📚</span>
+        <h1 class="login-title">Teaching Tools</h1>
+        <p class="login-sub">Enter the password to get started!</p>
+        <div class="input-wrap">
+            <input type="password" id="pwInput" placeholder="***" maxlength="10" autofocus>
+        </div>
+        <button class="btn btn-primary" id="loginBtn" style="width:100%">Let's Go!</button>
+        <div class="login-error" id="loginErr">Wrong password! Try again</div>
+    </div>
+</div>
+
+<!-- TOOLS MENU -->
+<div id="menu" class="screen">
+    <div class="menu-header">
+        <h1>Choose a Tool</h1>
+        <p>Pick a tool you want to use</p>
+    </div>
+    <div class="tools-grid">
+        <div class="tool-card" id="cardScoring">
+            <span class="icon">🚀</span>
+            <h3>Group Scoring</h3>
+            <p>Add points and watch rockets fly to the moon!</p>
+        </div>
+        <div class="tool-card disabled">
+            <span class="icon">⏱️</span>
+            <h3>Countdown Timer</h3>
+            <p>Set timers for class activities</p>
+            <span class="badge-soon">Coming Soon</span>
+        </div>
+        <div class="tool-card disabled">
+            <span class="icon">🎲</span>
+            <h3>Lucky Wheel</h3>
+            <p>Randomly pick a student</p>
+            <span class="badge-soon">Coming Soon</span>
+        </div>
+        <div class="tool-card disabled">
+            <span class="icon">📝</span>
+            <h3>Quick Quiz</h3>
+            <p>Create instant multiple-choice questions</p>
+            <span class="badge-soon">Coming Soon</span>
         </div>
     </div>
+</div>
 
-    <!-- ========== TOOLS SELECTION ========== -->
-    <div id="tools-screen">
-        <div class="tools-header">
-            <h1>🎒 Chon cong cu</h1>
-            <p>Chon cong cu ban muon su dung</p>
+<!-- SCORING TOOL -->
+<div id="scoring" class="screen">
+    <button class="btn btn-ghost nav-btn" id="backBtn">← Back</button>
+
+    <div id="setup" class="setup-box">
+        <h2>Game Setup</h2>
+        <div class="field">
+            <label>Number of groups</label>
+            <select id="groupCount">
+                <option value="2">2 groups</option>
+                <option value="3">3 groups</option>
+                <option value="4" selected>4 groups</option>
+                <option value="5">5 groups</option>
+                <option value="6">6 groups</option>
+                <option value="7">7 groups</option>
+                <option value="8">8 groups</option>
+                <option value="9">9 groups</option>
+                <option value="10">10 groups</option>
+            </select>
         </div>
-        <div class="tools-grid">
-            <div class="tool-card rocket-card" onclick="openScoring()">
-                <span class="tool-icon">🚀</span>
-                <h3>Tinh diem theo nhom</h3>
-                <p>Cong diem cho cac nhom va xem ten lua bay len mat trang!</p>
-            </div>
-            <div class="tool-card coming-soon">
-                <span class="tool-icon">⏱️</span>
-                <h3>Dong ho dem nguoc</h3>
-                <p>Hen gio cho cac hoat dong tren lop</p>
-                <span class="coming-badge">Sap co</span>
-            </div>
-            <div class="tool-card coming-soon">
-                <span class="tool-icon">🎲</span>
-                <h3>Vong quay may man</h3>
-                <p>Chon ngau nhien hoc sinh</p>
-                <span class="coming-badge">Sap co</span>
-            </div>
-            <div class="tool-card coming-soon">
-                <span class="tool-icon">📝</span>
-                <h3>Bai kiem tra nhanh</h3>
-                <p>Tao cau hoi trac nghiem nhanh</p>
-                <span class="coming-badge">Sap co</span>
-            </div>
+        <div class="field">
+            <label>Max points to reach the Moon</label>
+            <input type="number" id="maxPts" value="50" min="10" max="200">
         </div>
+        <button class="btn btn-success" id="startBtn" style="width:100%">Start!</button>
     </div>
 
-    <!-- ========== SCORING TOOL ========== -->
-    <div id="scoring-screen">
-        <button class="back-btn" onclick="backToTools()">⬅ Quay lai</button>
-
-        <!-- Setup -->
-        <div id="setup-panel" class="setup-panel">
-            <h2>🚀 Thiet lap tro choi</h2>
-            <div class="setup-field">
-                <label>So nhom trong lop:</label>
-                <select id="group-count">
-                    <option value="2">2 nhom</option>
-                    <option value="3">3 nhom</option>
-                    <option value="4" selected>4 nhom</option>
-                    <option value="5">5 nhom</option>
-                    <option value="6">6 nhom</option>
-                    <option value="7">7 nhom</option>
-                    <option value="8">8 nhom</option>
-                    <option value="9">9 nhom</option>
-                    <option value="10">10 nhom</option>
-                </select>
-            </div>
-            <div class="setup-field">
-                <label>So diem toi da (den mat trang 🌙):</label>
-                <input type="number" id="max-points" value="50" min="10" max="200">
-            </div>
-            <button class="start-btn" onclick="startGame()">Bat dau! 🎮</button>
+    <div id="game" hidden>
+        <div class="game-top">
+            <h2>Race to the Moon!</h2>
+            <p class="goal" id="goalText"></p>
         </div>
-
-        <!-- Game area -->
-        <div id="game-area">
-            <div class="game-header">
-                <h2>🚀 Cuoc dua len mat trang!</h2>
-                <p class="max-info" id="max-info"></p>
-            </div>
-            <div class="groups-container" id="groups-container"></div>
-            <div class="bottom-bar">
-                <button class="reset-btn" onclick="resetScores()">🔄 Dat lai</button>
-                <button class="end-btn" onclick="endGame()">🏁 Ket thuc</button>
-            </div>
+        <div class="groups-grid" id="groupsGrid"></div>
+        <div class="bar">
+            <button class="btn btn-ghost" id="resetBtn">Reset</button>
+            <button class="btn btn-danger" id="endBtn">Finish</button>
         </div>
     </div>
+</div>
 
-    <!-- ========== WINNER OVERLAY ========== -->
-    <div class="winner-overlay" id="winner-overlay">
-        <div class="winner-content">
-            <div class="winner-trophy">🏆</div>
-            <h2 class="winner-title" id="winner-title"></h2>
-            <p class="winner-score" id="winner-score-text"></p>
-            <div class="winner-rocket-scene">
-                <div class="stars-bg" id="winner-stars"></div>
-                <div class="winner-moon">🌙</div>
-                <div class="winner-rocket" id="winner-rocket-el">🚀</div>
-                <div class="winner-flame-anim" id="winner-flame-el">🔥</div>
-            </div>
-            <button class="winner-close-btn" onclick="closeWinner()">Tuyet voi! ✨</button>
+<!-- WINNER -->
+<div class="overlay" id="overlay">
+    <div class="winner-box">
+        <div class="winner-left">
+            <span class="trophy">🏆</span>
+            <h2 class="winner-name" id="winName"></h2>
+            <p class="winner-pts" id="winPts"></p>
+            <button class="btn btn-primary" id="closeWin">Awesome!</button>
+        </div>
+        <div class="win-scene" id="winScene">
+            <span class="moon-icon">🌙</span>
         </div>
     </div>
+</div>
 
-    <script>
-        // ============ STATE ============
-        let groups = [];
-        let maxPoints = 50;
-        let gameActive = false;
+<script>
+(function(){
+    const NAMES = ['Group 1','Group 2','Group 3','Group 4','Group 5','Group 6','Group 7','Group 8','Group 9','Group 10'];
+    const ROCKETS = ['🚀','🛸','🛩️','✈️','🚁','🛰️','🚀','🛸','🛩️','✈️'];
+    const COLORS = ['#6366F1','#06B6D4','#F472B6','#FBBF24','#10B981','#EF4444','#8B5CF6','#F59E0B','#14B8A6','#EC4899'];
 
-        const GROUP_NAMES = [
-            'Nhom 1', 'Nhom 2', 'Nhom 3', 'Nhom 4', 'Nhom 5',
-            'Nhom 6', 'Nhom 7', 'Nhom 8', 'Nhom 9', 'Nhom 10'
-        ];
+    let groups = [], maxPts = 50, active = false;
 
-        const ROCKET_EMOJIS = ['🚀', '🛸', '🛩️', '✈️', '🚁', '🛰️', '🚀', '🛸', '🛩️', '✈️'];
+    // BG
+    const deco = document.getElementById('bgDeco');
+    [{w:120,c:'var(--primary)',x:10,y:15},{w:90,c:'var(--secondary)',x:75,y:60},{w:100,c:'var(--accent)',x:50,y:80},{w:70,c:'var(--warning)',x:85,y:20}].forEach((b,i) => {
+        const el = document.createElement('div');
+        el.className = 'bg-blob';
+        el.style.cssText = `width:${b.w}px;height:${b.w}px;background:${b.c};left:${b.x}%;top:${b.y}%;animation-delay:${i*1.5}s`;
+        deco.appendChild(el);
+    });
 
-        // ============ INIT ============
-        createBgDecorations();
-        document.getElementById('password-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') checkPassword();
+    function show(id) {
+        document.querySelectorAll('.screen, #login').forEach(s => { s.classList.remove('active'); s.hidden = true; });
+        const el = document.getElementById(id);
+        el.hidden = false;
+        el.classList.add('active');
+    }
+
+    // Login
+    const pwInput = document.getElementById('pwInput');
+    const loginErr = document.getElementById('loginErr');
+    function tryLogin() {
+        if (pwInput.value === '123') { show('menu'); }
+        else {
+            pwInput.classList.add('shake'); loginErr.classList.add('show');
+            setTimeout(() => pwInput.classList.remove('shake'), 450);
+            setTimeout(() => loginErr.classList.remove('show'), 2000);
+            pwInput.value = '';
+        }
+    }
+    document.getElementById('loginBtn').addEventListener('click', tryLogin);
+    pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+    // Menu
+    document.getElementById('cardScoring').addEventListener('click', () => {
+        show('scoring');
+        document.getElementById('setup').hidden = false;
+        document.getElementById('game').hidden = true;
+    });
+    document.getElementById('backBtn').addEventListener('click', () => { show('menu'); active = false; });
+
+    // Setup
+    document.getElementById('startBtn').addEventListener('click', () => {
+        const count = parseInt(document.getElementById('groupCount').value);
+        maxPts = parseInt(document.getElementById('maxPts').value) || 50;
+        groups = [];
+        for (let i = 0; i < count; i++) groups.push({ name: NAMES[i], score: 0, emoji: ROCKETS[i] });
+        document.getElementById('setup').hidden = true;
+        document.getElementById('game').hidden = false;
+        document.getElementById('goalText').textContent = `Goal: ${maxPts} points to reach the Moon!`;
+        active = true;
+        renderGroups();
+    });
+
+    function renderGroups() {
+        const grid = document.getElementById('groupsGrid');
+        grid.innerHTML = '';
+        groups.forEach((g, i) => {
+            const pct = Math.min(g.score / maxPts * 100, 100);
+            const lane = document.createElement('div');
+            lane.className = `group-lane gc${i}`;
+            lane.innerHTML = `
+                <h3>${g.name}</h3>
+                <div class="group-score" data-si="${i}">${g.score}</div>
+                <div class="track" data-track="${i}">
+                    <span class="moon-icon">🌙</span>
+                    <span class="rocket-icon" data-ri="${i}">&#xFEFF;${g.emoji}</span>
+                    <span class="flame" data-fi="${i}">🔥</span>
+                    <div class="progress-bar"><div class="progress-fill" data-pi="${i}" style="width:${pct}%"></div></div>
+                </div>
+                <div class="pts-row">
+                    <button class="pt-btn pt1" data-g="${i}" data-p="1">+1</button>
+                    <button class="pt-btn pt2" data-g="${i}" data-p="2">+2</button>
+                    <button class="pt-btn pt3" data-g="${i}" data-p="3">+3</button>
+                    <button class="pt-btn pt4" data-g="${i}" data-p="4">+4</button>
+                    <button class="pt-btn pt5" data-g="${i}" data-p="5">+5</button>
+                </div>`;
+            grid.appendChild(lane);
+
+            // Position rocket based on track actual height
+            requestAnimationFrame(() => positionRocket(i));
+
+            // Stars
+            const track = lane.querySelector(`[data-track="${i}"]`);
+            for (let s = 0; s < 16; s++) {
+                const st = document.createElement('div');
+                st.className = 'star';
+                const sz = 1 + Math.random() * 2.5;
+                st.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;animation-delay:${Math.random()*2.5}s`;
+                track.appendChild(st);
+            }
         });
 
-        function createBgDecorations() {
-            const container = document.getElementById('bg-decorations');
-            for (let i = 0; i < 15; i++) {
-                const star = document.createElement('div');
-                star.className = 'bg-decoration bg-star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                star.style.transform = `scale(${0.5 + Math.random()})`;
-                container.appendChild(star);
-            }
-            for (let i = 0; i < 8; i++) {
-                const circle = document.createElement('div');
-                circle.className = 'bg-decoration bg-circle';
-                const size = 40 + Math.random() * 80;
-                circle.style.width = size + 'px';
-                circle.style.height = size + 'px';
-                circle.style.left = Math.random() * 100 + '%';
-                circle.style.top = Math.random() * 100 + '%';
-                circle.style.background = ['var(--primary)', 'var(--secondary)', 'var(--accent)', 'var(--warning)'][Math.floor(Math.random() * 4)];
-                circle.style.animationDelay = Math.random() * 6 + 's';
-                container.appendChild(circle);
-            }
+        grid.addEventListener('click', e => {
+            const btn = e.target.closest('.pt-btn');
+            if (!btn || !active) return;
+            addPoints(parseInt(btn.dataset.g), parseInt(btn.dataset.p));
+        });
+    }
+
+    function positionRocket(gi) {
+        const track = document.querySelector(`[data-track="${gi}"]`);
+        if (!track) return;
+        const h = track.clientHeight;
+        const pct = Math.min(groups[gi].score / maxPts * 100, 100);
+        const rBot = 6 + pct / 100 * (h - 60);
+        const rEl = document.querySelector(`[data-ri="${gi}"]`);
+        const fEl = document.querySelector(`[data-fi="${gi}"]`);
+        rEl.style.bottom = rBot + 'px';
+        fEl.style.bottom = (rBot - 20) + 'px';
+    }
+
+    function addPoints(gi, pts) {
+        groups[gi].score += pts;
+        const pct = Math.min(groups[gi].score / maxPts * 100, 100);
+
+        const scoreEl = document.querySelector(`[data-si="${gi}"]`);
+        scoreEl.textContent = groups[gi].score;
+        scoreEl.classList.remove('pop');
+        void scoreEl.offsetWidth;
+        scoreEl.classList.add('pop');
+
+        const track = document.querySelector(`[data-track="${gi}"]`);
+        const h = track.clientHeight;
+        const rBot = 6 + pct / 100 * (h - 60);
+        const rEl = document.querySelector(`[data-ri="${gi}"]`);
+        const fEl = document.querySelector(`[data-fi="${gi}"]`);
+
+        rEl.style.bottom = rBot + 'px';
+        rEl.classList.add('shake');
+        setTimeout(() => rEl.classList.remove('shake'), 300);
+
+        fEl.style.bottom = (rBot - 20) + 'px';
+        fEl.classList.add('on');
+        setTimeout(() => fEl.classList.remove('on'), 1100);
+
+        document.querySelector(`[data-pi="${gi}"]`).style.width = pct + '%';
+
+        const popup = document.createElement('div');
+        popup.className = 'point-popup';
+        popup.textContent = `+${pts}`;
+        popup.style.cssText = 'left:50%;top:20%;transform:translateX(-50%)';
+        scoreEl.closest('.group-lane').appendChild(popup);
+        setTimeout(() => popup.remove(), 900);
+
+        if (groups[gi].score >= maxPts) setTimeout(() => endGame(), 700);
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        if (!active) return;
+        groups.forEach(g => g.score = 0);
+        renderGroups();
+    });
+
+    document.getElementById('endBtn').addEventListener('click', () => endGame());
+
+    function endGame() {
+        active = false;
+        let wi = 0;
+        for (let i = 1; i < groups.length; i++) if (groups[i].score > groups[wi].score) wi = i;
+        const w = groups[wi];
+
+        document.getElementById('winName').textContent = w.name + ' Wins!';
+        document.getElementById('winPts').textContent = w.score + ' points';
+
+        const scene = document.getElementById('winScene');
+        scene.querySelectorAll('.win-rocket, .win-flame, .star').forEach(e => e.remove());
+        for (let s = 0; s < 25; s++) {
+            const st = document.createElement('div');
+            st.className = 'star';
+            const sz = 1 + Math.random() * 3;
+            st.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;animation-delay:${Math.random()*2}s`;
+            scene.appendChild(st);
         }
+        const r = document.createElement('span');
+        r.className = 'win-rocket'; r.textContent = w.emoji;
+        scene.appendChild(r);
+        const f = document.createElement('span');
+        f.className = 'win-flame'; f.textContent = '🔥';
+        scene.appendChild(f);
 
-        // ============ LOGIN ============
-        function checkPassword() {
-            const input = document.getElementById('password-input');
-            const error = document.getElementById('login-error');
-            if (input.value === '123') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('tools-screen').style.display = 'block';
-            } else {
-                input.classList.add('shake');
-                error.classList.add('visible');
-                setTimeout(() => {
-                    input.classList.remove('shake');
-                }, 500);
-                setTimeout(() => {
-                    error.classList.remove('visible');
-                }, 2000);
-                input.value = '';
-            }
-        }
+        document.getElementById('overlay').classList.add('active');
+        launchConfetti();
+    }
 
-        // ============ TOOLS NAVIGATION ============
-        function openScoring() {
-            document.getElementById('tools-screen').style.display = 'none';
-            document.getElementById('scoring-screen').style.display = 'block';
-            document.getElementById('setup-panel').style.display = 'block';
-            document.getElementById('game-area').style.display = 'none';
-        }
-
-        function backToTools() {
-            document.getElementById('scoring-screen').style.display = 'none';
-            document.getElementById('tools-screen').style.display = 'block';
-            gameActive = false;
-        }
-
-        // ============ GAME SETUP ============
-        function startGame() {
-            const count = parseInt(document.getElementById('group-count').value);
-            maxPoints = parseInt(document.getElementById('max-points').value) || 50;
-
-            groups = [];
-            for (let i = 0; i < count; i++) {
-                groups.push({ name: GROUP_NAMES[i], score: 0, emoji: ROCKET_EMOJIS[i] });
-            }
-
-            document.getElementById('setup-panel').style.display = 'none';
-            document.getElementById('game-area').style.display = 'block';
-            document.getElementById('max-info').textContent = `Muc tieu: ${maxPoints} diem de dat mat trang! 🌙`;
-
-            gameActive = true;
-            renderGroups();
-        }
-
-        function renderGroups() {
-            const container = document.getElementById('groups-container');
-            container.innerHTML = '';
-
-            groups.forEach((group, idx) => {
-                const pct = Math.min((group.score / maxPoints) * 100, 100);
-                const rocketBottom = 10 + (pct / 100) * 220;
-
-                const lane = document.createElement('div');
-                lane.className = `group-lane group-color-${idx}`;
-                lane.innerHTML = `
-                    <h3>${group.name}</h3>
-                    <div class="group-score" id="score-${idx}">${group.score}</div>
-
-                    <div class="rocket-track">
-                        <div class="stars-bg" id="stars-${idx}"></div>
-                        <div class="moon">🌙</div>
-                        <div class="rocket" id="rocket-${idx}" style="bottom: ${rocketBottom}px">${group.emoji}</div>
-                        <div class="rocket-flame" id="flame-${idx}" style="bottom: ${rocketBottom - 30}px">🔥</div>
-                        <div class="track-progress">
-                            <div class="track-progress-fill" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="point-buttons">
-                        <button class="point-btn p1" onclick="addPoints(${idx}, 1)">+1</button>
-                        <button class="point-btn p2" onclick="addPoints(${idx}, 2)">+2</button>
-                        <button class="point-btn p3" onclick="addPoints(${idx}, 3)">+3</button>
-                        <button class="point-btn p4" onclick="addPoints(${idx}, 4)">+4</button>
-                        <button class="point-btn p5" onclick="addPoints(${idx}, 5)">+5</button>
-                    </div>
-                `;
-                container.appendChild(lane);
-
-                // Add stars to track
-                const starsContainer = document.getElementById(`stars-${idx}`);
-                for (let s = 0; s < 20; s++) {
-                    const star = document.createElement('div');
-                    star.className = 'star';
-                    star.style.left = Math.random() * 100 + '%';
-                    star.style.top = Math.random() * 100 + '%';
-                    star.style.animationDelay = Math.random() * 2 + 's';
-                    star.style.width = (1 + Math.random() * 3) + 'px';
-                    star.style.height = star.style.width;
-                    starsContainer.appendChild(star);
-                }
-            });
-        }
-
-        // ============ ADD POINTS ============
-        function addPoints(groupIdx, points) {
-            if (!gameActive) return;
-
-            groups[groupIdx].score += points;
-
-            // Update score display with pop animation
-            const scoreEl = document.getElementById(`score-${groupIdx}`);
-            scoreEl.textContent = groups[groupIdx].score;
-            scoreEl.classList.remove('pop');
-            void scoreEl.offsetWidth;
-            scoreEl.classList.add('pop');
-
-            // Update rocket position
-            const pct = Math.min((groups[groupIdx].score / maxPoints) * 100, 100);
-            const rocketBottom = 10 + (pct / 100) * 220;
-
-            const rocketEl = document.getElementById(`rocket-${groupIdx}`);
-            const flameEl = document.getElementById(`flame-${groupIdx}`);
-
-            rocketEl.style.bottom = rocketBottom + 'px';
-            flameEl.style.bottom = (rocketBottom - 30) + 'px';
-
-            // Show flame and shake
-            rocketEl.classList.add('launching');
-            flameEl.classList.add('visible');
+    function launchConfetti() {
+        for (let i = 0; i < 70; i++) {
             setTimeout(() => {
-                rocketEl.classList.remove('launching');
-            }, 300);
-            setTimeout(() => {
-                flameEl.classList.remove('visible');
-            }, 1200);
-
-            // Update progress bar
-            const progressFill = rocketEl.closest('.rocket-track').querySelector('.track-progress-fill');
-            progressFill.style.width = pct + '%';
-
-            // Floating point popup
-            showPointPopup(groupIdx, points);
-
-            // Check if reached moon
-            if (groups[groupIdx].score >= maxPoints) {
-                setTimeout(() => {
-                    endGame();
-                }, 800);
-            }
+                const c = document.createElement('div');
+                c.className = 'confetti-piece';
+                const sz = 6 + Math.random() * 8;
+                c.style.cssText = `left:${Math.random()*100}%;top:-12px;width:${sz}px;height:${sz}px;background:${COLORS[i%COLORS.length]};border-radius:${Math.random()>0.5?'50%':'2px'};animation-duration:${2+Math.random()*3}s`;
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 5200);
+            }, i * 35);
         }
+    }
 
-        function showPointPopup(groupIdx, points) {
-            const lane = document.getElementById(`score-${groupIdx}`).closest('.group-lane');
-            const popup = document.createElement('div');
-            popup.className = 'point-popup';
-            popup.textContent = `+${points}`;
-            popup.style.left = '50%';
-            popup.style.top = '30%';
-            popup.style.transform = 'translateX(-50%)';
-            lane.appendChild(popup);
-            setTimeout(() => popup.remove(), 1000);
-        }
+    document.getElementById('closeWin').addEventListener('click', () => {
+        document.getElementById('overlay').classList.remove('active');
+        document.getElementById('setup').hidden = false;
+        document.getElementById('game').hidden = true;
+    });
 
-        // ============ END GAME ============
-        function endGame() {
-            gameActive = false;
-
-            // Find winner
-            let winnerIdx = 0;
-            let maxScore = groups[0].score;
-            for (let i = 1; i < groups.length; i++) {
-                if (groups[i].score > maxScore) {
-                    maxScore = groups[i].score;
-                    winnerIdx = i;
-                }
-            }
-
-            const winner = groups[winnerIdx];
-
-            // Show winner overlay
-            document.getElementById('winner-title').textContent = `${winner.name} chien thang!`;
-            document.getElementById('winner-score-text').textContent = `${winner.score} diem`;
-            document.getElementById('winner-rocket-el').textContent = winner.emoji;
-            document.getElementById('winner-overlay').classList.add('active');
-
-            // Add stars to winner scene
-            const winnerStars = document.getElementById('winner-stars');
-            winnerStars.innerHTML = '';
-            for (let s = 0; s < 30; s++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 2 + 's';
-                star.style.width = (1 + Math.random() * 3) + 'px';
-                star.style.height = star.style.width;
-                winnerStars.appendChild(star);
-            }
-
-            // Launch confetti
-            launchConfetti();
-        }
-
-        function launchConfetti() {
-            const colors = ['#6C5CE7', '#00CEC9', '#FD79A8', '#FDCB6E', '#00B894', '#E17055', '#FF6B6B', '#48DBFB'];
-            for (let i = 0; i < 80; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.top = '-10px';
-                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.width = (6 + Math.random() * 8) + 'px';
-                    confetti.style.height = (6 + Math.random() * 8) + 'px';
-                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-                    confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
-                    document.body.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 5000);
-                }, i * 30);
-            }
-        }
-
-        function closeWinner() {
-            document.getElementById('winner-overlay').classList.remove('active');
-            document.getElementById('setup-panel').style.display = 'block';
-            document.getElementById('game-area').style.display = 'none';
-        }
-
-        // ============ RESET ============
-        function resetScores() {
-            if (!gameActive) return;
-            groups.forEach(g => g.score = 0);
-            renderGroups();
-        }
-    </script>
-</body>
-</html>
+    window.addEventListener('resize', () => {
+        if (!active) return;
+        groups.forEach((_, i) => positionRocket(i));
+    });
+})();
+</script>
