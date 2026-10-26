@@ -4,21 +4,21 @@
 <style>
 /* Teaching Tools — landscape-first classroom app for 16:9 / 16:10 screens */
 :root {
-    --bg: #F0F4FF;
+    --bg: #FEFCF9;
     --bg-card: #FFFFFF;
-    --fg: #2B2D42;
-    --fg-muted: #6B7280;
-    --primary: #6366F1;
-    --primary-light: #A5B4FC;
-    --secondary: #06B6D4;
-    --accent: #F472B6;
-    --success: #10B981;
-    --warning: #FBBF24;
-    --danger: #EF4444;
-    --border: #E5E7EB;
-    --shadow-sm: 0 2px 8px rgba(99,102,241,0.08);
-    --shadow-md: 0 8px 30px rgba(99,102,241,0.12);
-    --shadow-lg: 0 12px 40px rgba(99,102,241,0.18);
+    --fg: #3D3D5C;
+    --fg-muted: #8E8EA0;
+    --primary: #7C5CFC;
+    --primary-light: #B4A0FF;
+    --secondary: #14B8D4;
+    --accent: #FF6B9D;
+    --success: #22C997;
+    --warning: #FFB938;
+    --danger: #FF5757;
+    --border: #EEEDF5;
+    --shadow-sm: 0 2px 8px rgba(124,92,252,0.06);
+    --shadow-md: 0 8px 30px rgba(124,92,252,0.10);
+    --shadow-lg: 0 12px 40px rgba(124,92,252,0.14);
     --radius: 20px;
     --font-display: 'Fredoka', sans-serif;
     --font-body: 'Nunito', sans-serif;
@@ -76,7 +76,7 @@ body {
 /* ===== BACKGROUND ===== */
 .bg-deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
 .bg-blob {
-    position: absolute; border-radius: 50%; opacity: 0.07;
+    position: absolute; border-radius: 50%; opacity: 0.12;
     animation: bfloat 8s ease-in-out infinite;
 }
 @keyframes bfloat {
@@ -102,16 +102,16 @@ body {
 .btn:active { transform: translateY(-1px) scale(0.97); }
 .btn-primary {
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    color: #fff; box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+    color: #fff; box-shadow: 0 4px 16px rgba(124,92,252,0.3);
 }
-.btn-primary:hover { box-shadow: 0 8px 24px rgba(99,102,241,0.4); }
+.btn-primary:hover { box-shadow: 0 8px 24px rgba(124,92,252,0.4); }
 .btn-success {
     background: linear-gradient(135deg, var(--success), var(--secondary));
-    color: #fff; box-shadow: 0 4px 16px rgba(16,185,129,0.3);
+    color: #fff; box-shadow: 0 4px 16px rgba(34,201,151,0.3);
 }
 .btn-danger {
     background: linear-gradient(135deg, var(--danger), var(--accent));
-    color: #fff; box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+    color: #fff; box-shadow: 0 4px 16px rgba(255,87,87,0.3);
 }
 .btn-ghost {
     background: var(--bg-card); color: var(--fg); border: 2px solid var(--border);
