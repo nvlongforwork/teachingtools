@@ -667,6 +667,26 @@ body {
             osc.stop(now + 0.3);
         } catch(e) {}
     }
+    function playWin() {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            const melody = [523,659,784,1047,784,1047];
+            const times = [0, 0.12, 0.24, 0.4, 0.56, 0.72];
+            const durs = [0.11,0.11,0.14,0.14,0.14,0.35];
+            melody.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = i < 4 ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(freq, now + times[i]);
+                gain.gain.setValueAtTime(0.22, now + times[i]);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + times[i] + durs[i]);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(now + times[i]);
+                osc.stop(now + times[i] + durs[i]);
+            });
+        } catch(e) {}
+    }
 
     // BG
     const deco = document.getElementById('bgDeco');
@@ -894,6 +914,7 @@ body {
 
         document.getElementById('overlay').classList.add('active');
         launchConfetti();
+        playWin();
     }
 
     function launchConfetti() {
