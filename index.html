@@ -627,6 +627,47 @@ body {
 
     let groups = [], maxPts = 50, active = false;
 
+    // Audio
+    let audioCtx;
+    function getAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return audioCtx;
+    }
+    function playPlus(pts) {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            const baseFreq = 520 + pts * 60;
+            [0, 0.08, 0.16].forEach((t, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(baseFreq + i * 80, now + t);
+                gain.gain.setValueAtTime(0.18, now + t);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(now + t);
+                osc.stop(now + t + 0.15);
+            });
+        } catch(e) {}
+    }
+    function playMinus() {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(220, now + 0.25);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        } catch(e) {}
+    }
+
     // BG
     const deco = document.getElementById('bgDeco');
     [{w:120,c:'var(--primary)',x:10,y:15},{w:90,c:'var(--secondary)',x:75,y:60},{w:100,c:'var(--accent)',x:50,y:80},{w:70,c:'var(--warning)',x:85,y:20}].forEach((b,i) => {
@@ -759,6 +800,7 @@ body {
         scoreEl.classList.remove('pop');
         void scoreEl.offsetWidth;
         scoreEl.classList.add('pop');
+        playPlus(pts);
 
         const track = document.querySelector(`[data-track="${gi}"]`);
         const h = track.clientHeight;
@@ -806,6 +848,7 @@ body {
         fEl.style.bottom = (rBot - 20) + 'px';
 
         document.querySelector(`[data-pi="${gi}"]`).style.width = pct + '%';
+        playMinus();
 
         const popup = document.createElement('div');
         popup.className = 'point-popup';
