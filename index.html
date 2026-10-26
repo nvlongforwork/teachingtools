@@ -582,6 +582,81 @@ body {
     100% { background: rgba(239,68,68,0.0); }
 }
 
+/* ===== LUCKY WHEEL ===== */
+#wheel { flex-direction: column; height: 100%; min-height: 100vh; align-items: center; justify-content: center; }
+
+.wheel-wrap {
+    display: flex; align-items: center; gap: 48px;
+    max-width: 1050px; width: 100%;
+}
+
+.wheel-canvas-box {
+    position: relative; flex-shrink: 0;
+}
+.wheel-canvas-box canvas { display: block; }
+.wheel-pointer {
+    position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    font-size: 36px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); z-index: 3;
+    line-height: 1;
+}
+
+.wheel-panel {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px;
+}
+.wheel-panel h2 {
+    font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--primary);
+    text-align: center;
+}
+.wheel-panel textarea {
+    width: 100%; min-height: 180px; padding: 14px 16px;
+    border: 3px solid var(--border); border-radius: 14px;
+    font-size: 1rem; font-family: var(--font-body);
+    background: var(--bg); color: var(--fg); outline: none;
+    line-height: 1.5; resize: vertical;
+    transition: border-color 0.25s;
+}
+.wheel-panel textarea:focus { border-color: var(--primary); }
+.wheel-panel .hint {
+    font-size: 0.85rem; color: var(--fg-muted); text-align: center; margin-top: -8px;
+}
+
+.wheel-controls {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+}
+.wheel-controls .btn { min-width: 120px; }
+
+.wheel-option-row {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.wheel-option-row label {
+    font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--fg-muted);
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+}
+.wheel-option-row input[type="checkbox"] {
+    width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;
+}
+
+/* Wheel winner overlay */
+.wheel-winner-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88); z-index: 200;
+    align-items: center; justify-content: center; flex-direction: column;
+    gap: 20px; padding: 16px;
+}
+.wheel-winner-overlay.active { display: flex; }
+.wheel-winner-icon {
+    font-size: 80px; display: block;
+    animation: tbounce 1s ease-in-out infinite;
+}
+.wheel-winner-name {
+    font-family: var(--font-display); font-size: 3rem; font-weight: 800;
+    color: var(--warning); text-shadow: 0 0 30px rgba(251,191,36,0.4);
+    text-align: center;
+}
+.wheel-winner-sub {
+    font-size: 1.1rem; color: #D1D5DB;
+}
+
 /* ===== RESPONSIVE — portrait / small screens ===== */
 @media (max-width: 800px), (max-aspect-ratio: 4/3) {
     .tools-grid { grid-template-columns: repeat(2, 1fr); }
@@ -596,6 +671,9 @@ body {
     .winner-name { font-size: 2rem; }
     .timer-wrap { flex-direction: column; gap: 24px; }
     .timer-digits { font-size: 3rem; }
+    .wheel-wrap { flex-direction: column; gap: 24px; }
+    .wheel-panel textarea { min-height: 120px; }
+    .wheel-winner-name { font-size: 2.2rem; }
 }
 
 @media (max-width: 500px) {
@@ -650,11 +728,10 @@ body {
             <h3>Countdown Timer</h3>
             <p>Set timers for class activities</p>
         </div>
-        <div class="tool-card disabled">
+        <div class="tool-card" id="cardWheel">
             <span class="icon">🎲</span>
             <h3>Lucky Wheel</h3>
             <p>Randomly pick a student</p>
-            <span class="badge-soon">Coming Soon</span>
         </div>
         <div class="tool-card disabled">
             <span class="icon">📝</span>
@@ -741,6 +818,37 @@ body {
             </div>
         </div>
     </div>
+</div>
+
+<!-- LUCKY WHEEL -->
+<div id="wheel" class="screen">
+    <button class="btn btn-ghost nav-btn" id="backBtnWheel">← Back</button>
+    <div class="wheel-wrap">
+        <div class="wheel-canvas-box">
+            <span class="wheel-pointer">▼</span>
+            <canvas id="wheelCanvas" width="380" height="380"></canvas>
+        </div>
+        <div class="wheel-panel">
+            <h2>Enter Student Names</h2>
+            <textarea id="wheelNames" placeholder="Enter one name per line&#10;e.g.&#10;Alice&#10;Bob&#10;Charlie"></textarea>
+            <p class="hint">One name per line</p>
+            <div class="wheel-option-row">
+                <label><input type="checkbox" id="wheelRemove"> Remove selected name after spin</label>
+            </div>
+            <div class="wheel-controls">
+                <button class="btn btn-success" id="spinBtn">Spin!</button>
+                <button class="btn btn-ghost" id="shuffleBtn">Shuffle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WHEEL WINNER OVERLAY -->
+<div class="wheel-winner-overlay" id="wheelWinner">
+    <span class="wheel-winner-icon">🎉</span>
+    <div class="wheel-winner-name" id="wheelWinnerName"></div>
+    <p class="wheel-winner-sub">has been selected!</p>
+    <button class="btn btn-primary" id="wheelWinnerClose">OK</button>
 </div>
 
 <!-- TIMER DONE OVERLAY -->
@@ -1231,5 +1339,210 @@ body {
 
     // Init timer display
     setTimer(60);
+
+    // ========== LUCKY WHEEL ==========
+    const wheelCanvas = document.getElementById('wheelCanvas');
+    const wheelCtx = wheelCanvas.getContext('2d');
+    const WHEEL_COLORS = ['#6366F1','#06B6D4','#F472B6','#FBBF24','#10B981','#EF4444','#8B5CF6','#F59E0B','#14B8A6','#EC4899','#3B82F6','#D946EF'];
+    let wheelAngle = 0, wheelSpinning = false;
+    const wheelNamesEl = document.getElementById('wheelNames');
+
+    function getWheelNames() {
+        return wheelNamesEl.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+    }
+
+    function drawWheel(names, angle) {
+        const cx = wheelCanvas.width / 2;
+        const cy = wheelCanvas.height / 2;
+        const r = cx - 10;
+        wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+
+        if (names.length === 0) {
+            wheelCtx.beginPath();
+            wheelCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            wheelCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#fff';
+            wheelCtx.fill();
+            wheelCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#ccc';
+            wheelCtx.lineWidth = 3;
+            wheelCtx.stroke();
+            wheelCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg-muted').trim() || '#999';
+            wheelCtx.font = '600 16px Nunito, sans-serif';
+            wheelCtx.textAlign = 'center';
+            wheelCtx.textBaseline = 'middle';
+            wheelCtx.fillText('Enter names to start', cx, cy);
+            return;
+        }
+
+        const sliceAngle = (Math.PI * 2) / names.length;
+        names.forEach((name, i) => {
+            const start = angle + i * sliceAngle;
+            const end = start + sliceAngle;
+
+            wheelCtx.beginPath();
+            wheelCtx.moveTo(cx, cy);
+            wheelCtx.arc(cx, cy, r, start, end);
+            wheelCtx.closePath();
+            wheelCtx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+            wheelCtx.fill();
+            wheelCtx.strokeStyle = 'rgba(255,255,255,0.3)';
+            wheelCtx.lineWidth = 2;
+            wheelCtx.stroke();
+
+            // Text
+            wheelCtx.save();
+            wheelCtx.translate(cx, cy);
+            wheelCtx.rotate(start + sliceAngle / 2);
+            wheelCtx.textAlign = 'right';
+            wheelCtx.textBaseline = 'middle';
+            wheelCtx.fillStyle = '#fff';
+            const fontSize = names.length > 16 ? 11 : names.length > 10 ? 13 : 15;
+            wheelCtx.font = `700 ${fontSize}px Fredoka, sans-serif`;
+            const maxLen = r - 30;
+            let txt = name;
+            if (wheelCtx.measureText(txt).width > maxLen) {
+                while (wheelCtx.measureText(txt + '…').width > maxLen && txt.length > 1) txt = txt.slice(0, -1);
+                txt += '…';
+            }
+            wheelCtx.fillText(txt, r - 18, 0);
+            wheelCtx.restore();
+        });
+
+        // Center circle
+        wheelCtx.beginPath();
+        wheelCtx.arc(cx, cy, 22, 0, Math.PI * 2);
+        wheelCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#fff';
+        wheelCtx.fill();
+        wheelCtx.strokeStyle = 'rgba(255,255,255,0.5)';
+        wheelCtx.lineWidth = 3;
+        wheelCtx.stroke();
+
+        // Outer ring
+        wheelCtx.beginPath();
+        wheelCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        wheelCtx.strokeStyle = 'rgba(255,255,255,0.15)';
+        wheelCtx.lineWidth = 4;
+        wheelCtx.stroke();
+    }
+
+    function playWheelTick() {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200 + Math.random() * 400, now);
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.04);
+        } catch(e) {}
+    }
+
+    function playWheelWin() {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            [523,659,784,1047,784,1047].forEach((freq, i) => {
+                const t = [0,0.1,0.2,0.35,0.5,0.65][i];
+                const d = [0.09,0.09,0.12,0.12,0.12,0.3][i];
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, now + t);
+                gain.gain.setValueAtTime(0.2, now + t);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + t + d);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(now + t);
+                osc.stop(now + t + d);
+            });
+        } catch(e) {}
+    }
+
+    function spinWheel() {
+        const names = getWheelNames();
+        if (names.length < 2 || wheelSpinning) return;
+        wheelSpinning = true;
+        document.getElementById('spinBtn').textContent = 'Spinning…';
+
+        const totalRotation = Math.PI * 2 * (5 + Math.random() * 5);
+        const duration = 4000 + Math.random() * 1500;
+        const startAngle = wheelAngle;
+        const startTime = performance.now();
+        let lastTickSlice = -1;
+
+        function animate(now) {
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            const ease = 1 - Math.pow(1 - t, 4);
+            wheelAngle = startAngle + totalRotation * ease;
+            drawWheel(names, wheelAngle);
+
+            const sliceAngle = (Math.PI * 2) / names.length;
+            const normalized = ((Math.PI * 1.5 - wheelAngle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+            const currentSlice = Math.floor(normalized / sliceAngle);
+            if (currentSlice !== lastTickSlice) {
+                playWheelTick();
+                lastTickSlice = currentSlice;
+            }
+
+            if (t < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                wheelSpinning = false;
+                document.getElementById('spinBtn').textContent = 'Spin!';
+                const winIdx = Math.floor(normalized / sliceAngle) % names.length;
+                const winner = names[winIdx];
+                setTimeout(() => showWheelWinner(winner), 300);
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+
+    function showWheelWinner(name) {
+        document.getElementById('wheelWinnerName').textContent = name;
+        document.getElementById('wheelWinner').classList.add('active');
+        launchConfetti();
+        playWheelWin();
+    }
+
+    document.getElementById('wheelWinnerClose').addEventListener('click', () => {
+        document.getElementById('wheelWinner').classList.remove('active');
+        if (document.getElementById('wheelRemove').checked) {
+            const names = getWheelNames();
+            const winnerName = document.getElementById('wheelWinnerName').textContent;
+            const idx = names.indexOf(winnerName);
+            if (idx !== -1) names.splice(idx, 1);
+            wheelNamesEl.value = names.join('\n');
+            drawWheel(names, wheelAngle);
+        }
+    });
+
+    document.getElementById('spinBtn').addEventListener('click', spinWheel);
+
+    document.getElementById('shuffleBtn').addEventListener('click', () => {
+        const names = getWheelNames();
+        for (let i = names.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [names[i], names[j]] = [names[j], names[i]];
+        }
+        wheelNamesEl.value = names.join('\n');
+        drawWheel(names, wheelAngle);
+    });
+
+    wheelNamesEl.addEventListener('input', () => {
+        if (!wheelSpinning) drawWheel(getWheelNames(), wheelAngle);
+    });
+
+    // Menu handler for wheel
+    document.getElementById('cardWheel').addEventListener('click', () => {
+        show('wheel');
+        drawWheel(getWheelNames(), wheelAngle);
+    });
+    document.getElementById('backBtnWheel').addEventListener('click', () => { show('menu'); });
+
+    // Initial draw
+    drawWheel([], 0);
 })();
 </script>
