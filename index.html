@@ -185,8 +185,8 @@ body {
 
 .tools-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px; max-width: 1100px; width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    gap: 20px; max-width: 1200px; width: 100%;
 }
 
 .tool-card {
@@ -246,6 +246,13 @@ body {
 .field select:focus, .field input[type="number"]:focus {
     border-color: var(--primary); transform: scale(1.02);
 }
+.field textarea {
+    width: 100%; padding: 12px 16px; border: 3px solid var(--border);
+    border-radius: 12px; font-size: 1rem; font-family: var(--font-body);
+    background: var(--bg); color: var(--fg); outline: none;
+    line-height: 1.5; resize: vertical; transition: border-color 0.25s;
+}
+.field textarea:focus { border-color: var(--primary); }
 
 /* ===== GAME — landscape optimized ===== */
 #game {
@@ -582,6 +589,86 @@ body {
     100% { background: rgba(239,68,68,0.0); }
 }
 
+/* ===== BALL RACE ===== */
+#ballrace { flex-direction: column; height: 100%; min-height: 100vh; }
+
+.race-arena {
+    display: flex; height: 100vh; overflow: hidden;
+}
+.race-canvas-wrap {
+    flex: 1; position: relative; min-width: 0;
+}
+.race-canvas-wrap canvas { display: block; }
+.race-sidebar {
+    width: 210px; background: var(--bg-card);
+    padding: 48px 10px 70px; overflow-y: auto;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.06);
+    flex-shrink: 0;
+}
+.race-sidebar h3 {
+    font-family: var(--font-display); font-size: 1.1rem; font-weight: 700;
+    color: var(--primary); text-align: center; margin-bottom: 10px;
+}
+.rank-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 10px; margin-bottom: 4px;
+    font-family: var(--font-display); font-size: 0.9rem; font-weight: 600;
+    animation: appear 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    background: rgba(255,255,255,0.04);
+}
+.rank-item .rank-medal { font-size: 1.2rem; flex-shrink: 0; }
+.rank-item .rank-pos {
+    min-width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.rank-item .rank-name {
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.race-results-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9); z-index: 200;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px; padding: 16px;
+    overflow-y: auto;
+}
+.race-results-overlay.active { display: flex; }
+.race-results-box {
+    text-align: center; max-width: 600px; width: 100%;
+    animation: appear 0.7s cubic-bezier(0.34,1.56,0.64,1);
+}
+.race-results-box h2 {
+    font-family: var(--font-display); font-size: 2.4rem; font-weight: 800;
+    color: var(--warning); text-shadow: 0 0 30px rgba(251,191,36,0.4);
+    margin-bottom: 16px;
+}
+.podium {
+    display: flex; align-items: flex-end; justify-content: center; gap: 12px;
+    margin-bottom: 20px;
+}
+.podium-item {
+    text-align: center; border-radius: 14px; padding: 16px 12px 12px;
+    background: var(--bg-card); min-width: 120px;
+}
+.podium-item.gold { box-shadow: 0 0 30px rgba(251,191,36,0.3); }
+.podium-medal { font-size: 40px; display: block; margin-bottom: 4px; }
+.podium-name {
+    font-family: var(--font-display); font-size: 1.1rem; font-weight: 700;
+    color: var(--fg); margin-bottom: 2px;
+    max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.podium-rank {
+    font-family: var(--font-display); font-size: 0.8rem; font-weight: 600;
+    color: var(--fg-muted);
+}
+.race-full-list {
+    text-align: left; max-height: 200px; overflow-y: auto;
+    background: var(--bg-card); border-radius: 14px; padding: 10px;
+    margin-bottom: 16px;
+}
+.race-full-list .rank-item { animation: none; }
+
 /* ===== LUCKY WHEEL ===== */
 #wheel { flex-direction: column; height: 100%; min-height: 100vh; align-items: center; justify-content: center; }
 
@@ -674,6 +761,12 @@ body {
     .wheel-wrap { flex-direction: column; gap: 24px; }
     .wheel-panel textarea { min-height: 120px; }
     .wheel-winner-name { font-size: 2.2rem; }
+    .race-sidebar { width: 160px; padding-top: 40px; }
+    .race-results-box h2 { font-size: 1.8rem; }
+    .podium { gap: 8px; }
+    .podium-item { min-width: 90px; padding: 10px 8px 8px; }
+    .podium-medal { font-size: 30px; }
+    .podium-name { font-size: 0.9rem; max-width: 100px; }
 }
 
 @media (max-width: 500px) {
@@ -732,6 +825,11 @@ body {
             <span class="icon">🎲</span>
             <h3>Lucky Wheel</h3>
             <p>Randomly pick a student</p>
+        </div>
+        <div class="tool-card" id="cardBallRace">
+            <span class="icon">🏁</span>
+            <h3>Ball Race</h3>
+            <p>Marble race through obstacles!</p>
         </div>
         <div class="tool-card disabled">
             <span class="icon">📝</span>
@@ -817,6 +915,48 @@ body {
                 <button class="btn btn-ghost" id="timerResetBtn">Reset</button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- BALL RACE -->
+<div id="ballrace" class="screen">
+    <button class="btn btn-ghost nav-btn" id="backBtnRace">← Back</button>
+
+    <div id="raceSetup" class="setup-box">
+        <h2>Ball Race Setup</h2>
+        <div class="field">
+            <label>Student names (one per line)</label>
+            <textarea id="raceNames" rows="6" placeholder="Enter one name per line&#10;e.g.&#10;Alice&#10;Bob&#10;Charlie"></textarea>
+        </div>
+        <div class="field">
+            <label>Number of obstacle rows</label>
+            <select id="obstacleCount"></select>
+        </div>
+        <button class="btn btn-success" id="raceStartBtn" style="width:100%">Start Race!</button>
+    </div>
+
+    <div id="raceArena" class="race-arena" hidden>
+        <div class="race-canvas-wrap">
+            <canvas id="raceCanvas"></canvas>
+        </div>
+        <div class="race-sidebar">
+            <h3>Rankings</h3>
+            <div id="raceRankings"></div>
+        </div>
+        <div class="bar">
+            <button class="btn btn-ghost" id="raceRestart">Restart</button>
+            <button class="btn btn-danger" id="raceEnd">End Race</button>
+        </div>
+    </div>
+</div>
+
+<!-- RACE RESULTS -->
+<div class="race-results-overlay" id="raceResults">
+    <div class="race-results-box">
+        <h2>Race Results!</h2>
+        <div class="podium" id="racePodium"></div>
+        <div class="race-full-list" id="raceFullList"></div>
+        <button class="btn btn-primary" id="raceResultsClose">Awesome!</button>
     </div>
 </div>
 
@@ -1339,6 +1479,475 @@ body {
 
     // Init timer display
     setTimer(60);
+
+    // ========== BALL RACE ==========
+    const BALL_COLORS = ['#6366F1','#06B6D4','#F472B6','#FBBF24','#10B981','#EF4444','#8B5CF6','#F59E0B','#14B8A6','#EC4899','#3B82F6','#D946EF','#84CC16','#A855F7','#F97316'];
+    let raceBalls = [], raceObs = [], raceRank = [], raceRunning = false, raceAnim = null;
+    let raceW = 0, raceH = 0;
+    const G = 0.15, FRIC = 0.998, BNC = 0.65, WBNC = 0.5;
+
+    // Populate obstacle select (1-20)
+    const obsSel = document.getElementById('obstacleCount');
+    for (let i = 1; i <= 20; i++) {
+        const o = document.createElement('option');
+        o.value = i; o.textContent = i + ' obstacle' + (i > 1 ? 's' : '');
+        if (i === 5) o.selected = true;
+        obsSel.appendChild(o);
+    }
+
+    function getRaceNames() {
+        return document.getElementById('raceNames').value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+    }
+
+    function generateObstacles(numRows, w, h) {
+        const obs = [];
+        const rowH = h / (numRows + 2);
+        const types = ['pegs','platform','ramp','funnel','bumper','scatter','moving','spinner'];
+
+        for (let row = 0; row < numRows; row++) {
+            const y = rowH * (row + 1.3);
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            if (type === 'pegs') {
+                const cols = 5 + Math.floor(Math.random() * 5);
+                const sp = w / (cols + 1);
+                const off = (row % 2) ? sp / 2 : 0;
+                for (let c = 0; c < cols; c++) {
+                    obs.push({ tp: 'c', x: sp * (c + 1) + off, y: y + (Math.random() - 0.5) * 10, r: 6, b: 0.7, col: '#94A3B8' });
+                }
+            } else if (type === 'platform') {
+                const gaps = 1 + Math.floor(Math.random() * 2);
+                const gps = [];
+                for (let g = 0; g < gaps; g++) gps.push(0.15 + Math.random() * 0.7);
+                gps.sort();
+                const gw = 30 + Math.random() * 25;
+                let lx = 15;
+                gps.forEach(gp => {
+                    const gx = gp * w;
+                    if (gx - gw / 2 > lx) obs.push({ tp: 'l', x1: lx, y1: y, x2: gx - gw / 2, y2: y, col: '#64748B' });
+                    lx = gx + gw / 2;
+                });
+                if (lx < w - 15) obs.push({ tp: 'l', x1: lx, y1: y, x2: w - 15, y2: y, col: '#64748B' });
+            } else if (type === 'ramp') {
+                const cnt = 2 + Math.floor(Math.random() * 2);
+                for (let i = 0; i < cnt; i++) {
+                    const cx = (i + 1) * w / (cnt + 1) + (Math.random() - 0.5) * 40;
+                    const len = 45 + Math.random() * 55;
+                    const a = (Math.random() > 0.5 ? 1 : -1) * (15 + Math.random() * 30) * Math.PI / 180;
+                    obs.push({ tp: 'l', x1: cx - Math.cos(a) * len / 2, y1: y - Math.sin(a) * len / 2, x2: cx + Math.cos(a) * len / 2, y2: y + Math.sin(a) * len / 2, col: '#10B981' });
+                }
+            } else if (type === 'funnel') {
+                const cx = w / 2 + (Math.random() - 0.5) * w * 0.3;
+                const ow = 70 + Math.random() * 50, nw = 18 + Math.random() * 12, d = 25 + Math.random() * 20;
+                obs.push({ tp: 'l', x1: cx - ow / 2, y1: y, x2: cx - nw / 2, y2: y + d, col: '#F59E0B' });
+                obs.push({ tp: 'l', x1: cx + ow / 2, y1: y, x2: cx + nw / 2, y2: y + d, col: '#F59E0B' });
+            } else if (type === 'bumper') {
+                const cnt = 2 + Math.floor(Math.random() * 3);
+                for (let i = 0; i < cnt; i++) {
+                    obs.push({ tp: 'c', x: (i + 1) * w / (cnt + 1) + (Math.random() - 0.5) * 30, y: y + (Math.random() - 0.5) * 15, r: 13 + Math.random() * 8, b: 1.3, col: '#EF4444' });
+                }
+            } else if (type === 'scatter') {
+                const cnt = 7 + Math.floor(Math.random() * 7);
+                for (let i = 0; i < cnt; i++) {
+                    obs.push({ tp: 'c', x: 25 + Math.random() * (w - 50), y: y + (Math.random() - 0.5) * rowH * 0.35, r: 3 + Math.random() * 4, b: 0.8, col: '#8B5CF6' });
+                }
+            } else if (type === 'moving') {
+                const hw = 40 + Math.random() * 35;
+                obs.push({ tp: 'm', cx: w / 2, oy: y, hw: hw, spd: 0.5 + Math.random() * 1.5, ph: Math.random() * Math.PI * 2, amp: 50 + Math.random() * 40, col: '#06B6D4', x1: 0, y1: y, x2: 0, y2: y });
+            } else if (type === 'spinner') {
+                const cx = w / 2 + (Math.random() - 0.5) * w * 0.3;
+                obs.push({ tp: 's', cx: cx, cy: y, len: 45 + Math.random() * 40, spd: (Math.random() > 0.5 ? 1 : -1) * (0.012 + Math.random() * 0.018), ca: Math.random() * Math.PI, col: '#EC4899', x1: 0, y1: 0, x2: 0, y2: 0 });
+            }
+        }
+        return obs;
+    }
+
+    function collideBallCircle(ball, ox, oy, or, bounce) {
+        const dx = ball.x - ox, dy = ball.y - oy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const md = ball.r + or;
+        if (dist < md && dist > 0.01) {
+            const nx = dx / dist, ny = dy / dist;
+            ball.x = ox + nx * md;
+            ball.y = oy + ny * md;
+            const dot = ball.vx * nx + ball.vy * ny;
+            if (dot < 0) {
+                ball.vx -= 2 * dot * nx * bounce;
+                ball.vy -= 2 * dot * ny * bounce;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    function collideBallLine(ball, x1, y1, x2, y2) {
+        const lx = x2 - x1, ly = y2 - y1;
+        const len = Math.sqrt(lx * lx + ly * ly);
+        if (len < 0.1) return false;
+        const t = Math.max(0, Math.min(1, ((ball.x - x1) * lx + (ball.y - y1) * ly) / (len * len)));
+        const px = x1 + t * lx, py = y1 + t * ly;
+        const dx = ball.x - px, dy = ball.y - py;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < ball.r && dist > 0.01) {
+            const nx = dx / dist, ny = dy / dist;
+            ball.x = px + nx * ball.r;
+            ball.y = py + ny * ball.r;
+            const dot = ball.vx * nx + ball.vy * ny;
+            if (dot < 0) {
+                ball.vx -= 2 * dot * nx * BNC;
+                ball.vy -= 2 * dot * ny * BNC;
+                const tx = lx / len, ty = ly / len;
+                const tv = ball.vx * tx + ball.vy * ty;
+                ball.vx -= tv * 0.015;
+                ball.vy -= tv * 0.015;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    function collideBallBall(a, b) {
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const md = a.r + b.r;
+        if (dist < md && dist > 0.01) {
+            const nx = dx / dist, ny = dy / dist;
+            const overlap = md - dist;
+            a.x -= nx * overlap / 2;
+            a.y -= ny * overlap / 2;
+            b.x += nx * overlap / 2;
+            b.y += ny * overlap / 2;
+            const dvx = a.vx - b.vx, dvy = a.vy - b.vy;
+            const dot = dvx * nx + dvy * ny;
+            if (dot > 0) {
+                a.vx -= dot * nx * 0.8;
+                a.vy -= dot * ny * 0.8;
+                b.vx += dot * nx * 0.8;
+                b.vy += dot * ny * 0.8;
+            }
+        }
+    }
+
+    function playRaceFinish(rank) {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            const freq = rank === 1 ? 1047 : rank === 2 ? 880 : rank === 3 ? 784 : 660;
+            [0, 0.08, 0.16].forEach((t, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = rank <= 3 ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(freq + i * 60, now + t);
+                gain.gain.setValueAtTime(0.15, now + t);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.12);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(now + t);
+                osc.stop(now + t + 0.12);
+            });
+        } catch(e) {}
+    }
+
+    function addRankItem(ball, rank) {
+        const div = document.getElementById('raceRankings');
+        const item = document.createElement('div');
+        item.className = 'rank-item';
+        const medals = ['🥇','🥈','🥉'];
+        const medal = rank <= 3 ? `<span class="rank-medal">${medals[rank - 1]}</span>` : '';
+        item.innerHTML = `${medal}<span class="rank-pos" style="background:${ball.color}">${rank}</span><span class="rank-name">${ball.name}</span>`;
+        div.appendChild(item);
+    }
+
+    function startRace() {
+        const names = getRaceNames();
+        if (names.length < 2) return;
+        const numObs = parseInt(obsSel.value) || 5;
+
+        document.getElementById('raceSetup').hidden = true;
+        document.getElementById('raceArena').hidden = false;
+        document.getElementById('raceRankings').innerHTML = '';
+        raceRank = [];
+
+        const canvas = document.getElementById('raceCanvas');
+        const wrap = canvas.parentElement;
+        raceW = wrap.clientWidth;
+        raceH = wrap.clientHeight;
+        canvas.width = raceW;
+        canvas.height = raceH;
+
+        raceObs = generateObstacles(numObs, raceW, raceH);
+
+        const br = names.length > 20 ? 5 : names.length > 12 ? 6 : 8;
+        raceBalls = names.map((name, i) => ({
+            x: raceW * 0.15 + (raceW * 0.7) * (i / Math.max(names.length - 1, 1)) + (Math.random() - 0.5) * 15,
+            y: -br - i * (br * 2.5),
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: 0,
+            r: br,
+            color: BALL_COLORS[i % BALL_COLORS.length],
+            name: name,
+            finished: false
+        }));
+
+        raceRunning = true;
+        raceLoop();
+    }
+
+    function raceStep() {
+        const t = performance.now();
+        raceObs.forEach(obs => {
+            if (obs.tp === 'm') {
+                const off = Math.sin(t * 0.002 * obs.spd + obs.ph) * obs.amp;
+                obs.x1 = obs.cx - obs.hw + off;
+                obs.x2 = obs.cx + obs.hw + off;
+                obs.y1 = obs.oy;
+                obs.y2 = obs.oy;
+            } else if (obs.tp === 's') {
+                obs.ca += obs.spd;
+                obs.x1 = obs.cx - Math.cos(obs.ca) * obs.len / 2;
+                obs.y1 = obs.cy - Math.sin(obs.ca) * obs.len / 2;
+                obs.x2 = obs.cx + Math.cos(obs.ca) * obs.len / 2;
+                obs.y2 = obs.cy + Math.sin(obs.ca) * obs.len / 2;
+            }
+        });
+
+        raceBalls.forEach(ball => {
+            if (ball.finished) return;
+            ball.vy += G;
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+            ball.vx *= FRIC;
+            ball.vy *= FRIC;
+
+            if (ball.x < ball.r) { ball.x = ball.r; ball.vx = Math.abs(ball.vx) * WBNC; }
+            if (ball.x > raceW - ball.r) { ball.x = raceW - ball.r; ball.vx = -Math.abs(ball.vx) * WBNC; }
+            if (ball.y < ball.r) { ball.y = ball.r; ball.vy = Math.abs(ball.vy) * WBNC; }
+
+            raceObs.forEach(obs => {
+                if (obs.tp === 'c') collideBallCircle(ball, obs.x, obs.y, obs.r, obs.b);
+                else collideBallLine(ball, obs.x1, obs.y1, obs.x2, obs.y2);
+            });
+
+            for (let j = 0; j < raceBalls.length; j++) {
+                const other = raceBalls[j];
+                if (other === ball || other.finished) continue;
+                collideBallBall(ball, other);
+            }
+
+            const finishY = raceH - 18;
+            if (ball.y >= finishY - ball.r) {
+                ball.finished = true;
+                ball.y = finishY - ball.r;
+                ball.vx = 0;
+                ball.vy = 0;
+                raceRank.push(ball);
+                addRankItem(ball, raceRank.length);
+                playRaceFinish(raceRank.length);
+                if (raceRank.length === raceBalls.length) {
+                    raceRunning = false;
+                    setTimeout(showRaceResults, 1200);
+                }
+            }
+        });
+    }
+
+    function drawRace() {
+        const canvas = document.getElementById('raceCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const bg = ctx.createLinearGradient(0, 0, 0, raceH);
+        bg.addColorStop(0, '#0F172A');
+        bg.addColorStop(0.5, '#1E293B');
+        bg.addColorStop(1, '#334155');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, raceW, raceH);
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+        ctx.lineWidth = 1;
+        for (let y = 0; y < raceH; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(raceW, y); ctx.stroke(); }
+        for (let x = 0; x < raceW; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, raceH); ctx.stroke(); }
+
+        // Start line
+        ctx.strokeStyle = 'rgba(16,185,129,0.4)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 4]);
+        ctx.beginPath(); ctx.moveTo(0, 10); ctx.lineTo(raceW, 10); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(16,185,129,0.25)';
+        ctx.font = '700 12px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('START', raceW / 2, 24);
+
+        // Finish line
+        const fy = raceH - 18;
+        ctx.strokeStyle = '#FBBF24';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([10, 5]);
+        ctx.beginPath(); ctx.moveTo(0, fy); ctx.lineTo(raceW, fy); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(251,191,36,0.08)';
+        ctx.fillRect(0, fy, raceW, raceH - fy);
+        ctx.fillStyle = 'rgba(251,191,36,0.3)';
+        ctx.font = '700 13px Fredoka, sans-serif';
+        ctx.fillText('FINISH', raceW / 2, fy + 14);
+
+        // Obstacles
+        raceObs.forEach(obs => {
+            if (obs.tp === 'c') {
+                ctx.beginPath();
+                ctx.arc(obs.x, obs.y, obs.r, 0, Math.PI * 2);
+                ctx.fillStyle = obs.col;
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(obs.x - obs.r * 0.25, obs.y - obs.r * 0.25, obs.r * 0.3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fill();
+                if (obs.b > 1) {
+                    ctx.beginPath();
+                    ctx.arc(obs.x, obs.y, obs.r + 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = obs.col + '55';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(obs.x1, obs.y1);
+                ctx.lineTo(obs.x2, obs.y2);
+                ctx.strokeStyle = obs.col;
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                if (obs.tp === 'm' || obs.tp === 's') {
+                    ctx.beginPath();
+                    ctx.moveTo(obs.x1, obs.y1);
+                    ctx.lineTo(obs.x2, obs.y2);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                    ctx.lineWidth = 7;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(obs.x1, obs.y1);
+                    ctx.lineTo(obs.x2, obs.y2);
+                    ctx.strokeStyle = obs.col;
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+                }
+            }
+        });
+
+        // Balls
+        raceBalls.forEach(ball => {
+            if (ball.y < -ball.r * 3) return;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.r + 3, 0, Math.PI * 2);
+            ctx.fillStyle = ball.color + '30';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+            const grad = ctx.createRadialGradient(ball.x - ball.r * 0.3, ball.y - ball.r * 0.3, 0, ball.x, ball.y, ball.r);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(0.35, ball.color);
+            grad.addColorStop(1, ball.color);
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            if (raceBalls.length <= 16) {
+                ctx.fillStyle = '#fff';
+                ctx.font = `700 ${ball.r > 6 ? 10 : 8}px Fredoka, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                let txt = ball.name;
+                if (txt.length > 8) txt = txt.substring(0, 7) + '…';
+                ctx.fillText(txt, ball.x, ball.y - ball.r - 2);
+            }
+        });
+    }
+
+    function raceLoop() {
+        if (!raceRunning) { drawRace(); return; }
+        raceStep();
+        drawRace();
+        raceAnim = requestAnimationFrame(raceLoop);
+    }
+
+    function showRaceResults() {
+        const overlay = document.getElementById('raceResults');
+        const podium = document.getElementById('racePodium');
+        const list = document.getElementById('raceFullList');
+
+        podium.innerHTML = '';
+        const medals = ['🥇','🥈','🥉'];
+        const heights = [140, 110, 90];
+        const order = [1, 0, 2];
+        order.forEach(pi => {
+            if (pi >= raceRank.length) return;
+            const ball = raceRank[pi];
+            const item = document.createElement('div');
+            item.className = 'podium-item' + (pi === 0 ? ' gold' : '');
+            item.style.order = pi === 0 ? 1 : pi === 1 ? 0 : 2;
+            item.innerHTML = `
+                <span class="podium-medal">${medals[pi]}</span>
+                <div class="podium-name" style="color:${ball.color}">${ball.name}</div>
+                <div class="podium-rank">${pi === 0 ? '1st Place' : pi === 1 ? '2nd Place' : '3rd Place'}</div>
+                <div style="height:${heights[pi]}px;background:linear-gradient(180deg,${ball.color},${ball.color}33);border-radius:10px 10px 0 0;margin-top:8px;width:80px;margin-inline:auto"></div>`;
+            podium.appendChild(item);
+        });
+
+        list.innerHTML = '';
+        raceRank.forEach((ball, i) => {
+            const item = document.createElement('div');
+            item.className = 'rank-item';
+            const medal = i < 3 ? `<span class="rank-medal">${medals[i]}</span>` : '';
+            item.innerHTML = `${medal}<span class="rank-pos" style="background:${ball.color}">${i + 1}</span><span class="rank-name">${ball.name}</span>`;
+            list.appendChild(item);
+        });
+
+        overlay.classList.add('active');
+        launchConfetti();
+        playWin();
+    }
+
+    document.getElementById('raceStartBtn').addEventListener('click', startRace);
+    document.getElementById('cardBallRace').addEventListener('click', () => {
+        show('ballrace');
+        document.getElementById('raceSetup').hidden = false;
+        document.getElementById('raceArena').hidden = true;
+    });
+    document.getElementById('backBtnRace').addEventListener('click', () => {
+        show('menu'); raceRunning = false;
+        if (raceAnim) cancelAnimationFrame(raceAnim);
+    });
+    document.getElementById('raceRestart').addEventListener('click', () => {
+        raceRunning = false;
+        if (raceAnim) cancelAnimationFrame(raceAnim);
+        document.getElementById('raceSetup').hidden = false;
+        document.getElementById('raceArena').hidden = true;
+    });
+    document.getElementById('raceEnd').addEventListener('click', () => {
+        raceRunning = false;
+        raceBalls.forEach(ball => {
+            if (!ball.finished) {
+                ball.finished = true;
+                raceRank.push(ball);
+                addRankItem(ball, raceRank.length);
+            }
+        });
+        setTimeout(showRaceResults, 400);
+    });
+    document.getElementById('raceResultsClose').addEventListener('click', () => {
+        document.getElementById('raceResults').classList.remove('active');
+        document.getElementById('raceSetup').hidden = false;
+        document.getElementById('raceArena').hidden = true;
+    });
+
+    window.addEventListener('resize', () => {
+        if (!raceRunning) return;
+        const canvas = document.getElementById('raceCanvas');
+        const wrap = canvas.parentElement;
+        raceW = wrap.clientWidth;
+        raceH = wrap.clientHeight;
+        canvas.width = raceW;
+        canvas.height = raceH;
+    });
 
     // ========== LUCKY WHEEL ==========
     const wheelCanvas = document.getElementById('wheelCanvas');
