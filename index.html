@@ -482,6 +482,106 @@ body {
     100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
+/* ===== TIMER TOOL ===== */
+#timer { flex-direction: column; height: 100%; min-height: 100vh; align-items: center; justify-content: center; }
+
+.timer-wrap {
+    display: flex; align-items: center; gap: 48px;
+    max-width: 960px; width: 100%;
+}
+
+.timer-ring-box {
+    position: relative; flex-shrink: 0;
+}
+.timer-ring-box svg { display: block; }
+.timer-ring-bg { fill: none; stroke: var(--border); stroke-width: 10; }
+.timer-ring-fg {
+    fill: none; stroke: var(--primary); stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s linear, stroke 0.3s;
+    transform: rotate(-90deg); transform-origin: center;
+}
+.timer-ring-fg.warn { stroke: var(--warning); }
+.timer-ring-fg.crit { stroke: var(--danger); }
+
+.timer-display {
+    position: absolute; inset: 0; display: flex;
+    align-items: center; justify-content: center; flex-direction: column;
+}
+.timer-digits {
+    font-family: var(--font-display); font-size: 4.5rem; font-weight: 800;
+    color: var(--fg); line-height: 1; font-variant-numeric: tabular-nums;
+    letter-spacing: 2px;
+}
+.timer-label {
+    font-size: 0.95rem; color: var(--fg-muted); margin-top: 4px;
+}
+
+.timer-panel {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px;
+}
+
+.timer-presets {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+}
+.preset-btn {
+    padding: 10px 20px; border-radius: 12px; border: 2px solid var(--border);
+    background: var(--bg-card); color: var(--fg);
+    font-family: var(--font-display); font-size: 1rem; font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), border-color 0.2s, box-shadow 0.2s;
+}
+.preset-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    border-color: var(--primary); box-shadow: var(--shadow-sm);
+}
+.preset-btn:active { transform: translateY(-1px) scale(0.96); }
+.preset-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+
+.timer-custom {
+    display: flex; gap: 8px; align-items: center; justify-content: center;
+}
+.timer-custom input {
+    width: 70px; padding: 10px 8px; border: 3px solid var(--border);
+    border-radius: 12px; font-size: 1.1rem; font-family: var(--font-body);
+    text-align: center; background: var(--bg); color: var(--fg); outline: none;
+    font-variant-numeric: tabular-nums;
+    transition: border-color 0.25s;
+}
+.timer-custom input:focus { border-color: var(--primary); }
+.timer-custom span {
+    font-family: var(--font-display); font-size: 0.9rem; color: var(--fg-muted); font-weight: 600;
+}
+
+.timer-controls {
+    display: flex; gap: 10px; justify-content: center;
+}
+.timer-controls .btn { min-width: 120px; }
+
+.timer-done-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85); z-index: 200;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px; padding: 16px;
+}
+.timer-done-overlay.active { display: flex; }
+
+.timer-done-icon {
+    font-size: 100px; display: block;
+    animation: tbounce 0.8s ease-in-out infinite;
+}
+.timer-done-text {
+    font-family: var(--font-display); font-size: 2.8rem; font-weight: 800;
+    color: var(--warning); text-shadow: 0 0 30px rgba(251,191,36,0.4);
+}
+.timer-done-overlay .blink {
+    animation: blink-bg 0.5s ease-in-out infinite alternate;
+}
+@keyframes blink-bg {
+    0% { background: rgba(239,68,68,0.15); }
+    100% { background: rgba(239,68,68,0.0); }
+}
+
 /* ===== RESPONSIVE — portrait / small screens ===== */
 @media (max-width: 800px), (max-aspect-ratio: 4/3) {
     .tools-grid { grid-template-columns: repeat(2, 1fr); }
@@ -494,6 +594,8 @@ body {
     #game { height: auto; min-height: 100vh; overflow: visible; }
     .winner-box { flex-direction: column; gap: 16px; }
     .winner-name { font-size: 2rem; }
+    .timer-wrap { flex-direction: column; gap: 24px; }
+    .timer-digits { font-size: 3rem; }
 }
 
 @media (max-width: 500px) {
@@ -543,11 +645,10 @@ body {
             <h3>Group Scoring</h3>
             <p>Add points and watch rockets fly to the moon!</p>
         </div>
-        <div class="tool-card disabled">
+        <div class="tool-card" id="cardTimer">
             <span class="icon">⏱️</span>
             <h3>Countdown Timer</h3>
             <p>Set timers for class activities</p>
-            <span class="badge-soon">Coming Soon</span>
         </div>
         <div class="tool-card disabled">
             <span class="icon">🎲</span>
@@ -602,6 +703,51 @@ body {
             <button class="btn btn-danger" id="endBtn">Finish</button>
         </div>
     </div>
+</div>
+
+<!-- TIMER TOOL -->
+<div id="timer" class="screen">
+    <button class="btn btn-ghost nav-btn" id="backBtnTimer">← Back</button>
+    <div class="timer-wrap">
+        <div class="timer-ring-box">
+            <svg width="280" height="280" viewBox="0 0 280 280">
+                <circle class="timer-ring-bg" cx="140" cy="140" r="125"/>
+                <circle class="timer-ring-fg" id="timerRing" cx="140" cy="140" r="125"
+                    stroke-dasharray="785.4" stroke-dashoffset="0"/>
+            </svg>
+            <div class="timer-display">
+                <div class="timer-digits" id="timerDigits">05:00</div>
+                <div class="timer-label" id="timerStatus">Ready</div>
+            </div>
+        </div>
+        <div class="timer-panel">
+            <div class="timer-presets">
+                <button class="preset-btn" data-sec="30">30s</button>
+                <button class="preset-btn active" data-sec="60">1 min</button>
+                <button class="preset-btn" data-sec="120">2 min</button>
+                <button class="preset-btn" data-sec="180">3 min</button>
+                <button class="preset-btn" data-sec="300">5 min</button>
+                <button class="preset-btn" data-sec="600">10 min</button>
+            </div>
+            <div class="timer-custom">
+                <input type="number" id="timerMin" value="5" min="0" max="99" placeholder="min">
+                <span>min</span>
+                <input type="number" id="timerSec" value="0" min="0" max="59" placeholder="sec">
+                <span>sec</span>
+            </div>
+            <div class="timer-controls">
+                <button class="btn btn-success" id="timerStartBtn">Start</button>
+                <button class="btn btn-ghost" id="timerResetBtn">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TIMER DONE OVERLAY -->
+<div class="timer-done-overlay" id="timerDone">
+    <span class="timer-done-icon">⏰</span>
+    <div class="timer-done-text">Time's Up!</div>
+    <button class="btn btn-primary" id="timerDoneClose">OK</button>
 </div>
 
 <!-- WINNER -->
@@ -726,6 +872,8 @@ body {
         document.getElementById('game').hidden = true;
     });
     document.getElementById('backBtn').addEventListener('click', () => { show('menu'); active = false; });
+    document.getElementById('cardTimer').addEventListener('click', () => { show('timer'); resetTimer(); });
+    document.getElementById('backBtnTimer').addEventListener('click', () => { show('menu'); clearInterval(timerInterval); timerRunning = false; });
 
     // Setup
     document.getElementById('startBtn').addEventListener('click', () => {
@@ -940,5 +1088,148 @@ body {
         if (!active) return;
         groups.forEach((_, i) => positionRocket(i));
     });
+
+    // ========== TIMER ==========
+    const CIRC = 2 * Math.PI * 125;
+    let timerTotal = 60, timerLeft = 60, timerRunning = false, timerInterval = null;
+    const ring = document.getElementById('timerRing');
+    const digits = document.getElementById('timerDigits');
+    const status = document.getElementById('timerStatus');
+    const minIn = document.getElementById('timerMin');
+    const secIn = document.getElementById('timerSec');
+
+    ring.style.strokeDasharray = CIRC;
+
+    function fmtTime(s) {
+        const m = Math.floor(s / 60);
+        const sc = s % 60;
+        return String(m).padStart(2, '0') + ':' + String(sc).padStart(2, '0');
+    }
+
+    function updateRing() {
+        const pct = timerTotal > 0 ? timerLeft / timerTotal : 0;
+        ring.style.strokeDashoffset = CIRC * (1 - pct);
+        ring.classList.remove('warn', 'crit');
+        if (pct <= 0.15 && timerLeft > 0) ring.classList.add('crit');
+        else if (pct <= 0.33 && timerLeft > 0) ring.classList.add('warn');
+        digits.textContent = fmtTime(timerLeft);
+    }
+
+    function setTimer(sec) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        timerTotal = sec;
+        timerLeft = sec;
+        minIn.value = Math.floor(sec / 60);
+        secIn.value = sec % 60;
+        status.textContent = 'Ready';
+        document.getElementById('timerStartBtn').textContent = 'Start';
+        updateRing();
+    }
+
+    function resetTimer() {
+        const sec = parseInt(minIn.value || 0) * 60 + parseInt(secIn.value || 0);
+        setTimer(sec > 0 ? sec : 60);
+    }
+
+    // Presets
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            setTimer(parseInt(btn.dataset.sec));
+        });
+    });
+
+    // Custom input
+    [minIn, secIn].forEach(inp => {
+        inp.addEventListener('change', () => {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            const sec = parseInt(minIn.value || 0) * 60 + parseInt(secIn.value || 0);
+            if (sec > 0) setTimer(sec);
+        });
+    });
+
+    // Start / Pause
+    document.getElementById('timerStartBtn').addEventListener('click', () => {
+        if (timerRunning) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            status.textContent = 'Paused';
+            document.getElementById('timerStartBtn').textContent = 'Resume';
+            return;
+        }
+        if (timerLeft <= 0) resetTimer();
+        timerRunning = true;
+        status.textContent = 'Running';
+        document.getElementById('timerStartBtn').textContent = 'Pause';
+        playTick();
+        timerInterval = setInterval(() => {
+            timerLeft--;
+            updateRing();
+            if (timerLeft <= 5 && timerLeft > 0) playTick();
+            if (timerLeft <= 0) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                status.textContent = 'Done!';
+                document.getElementById('timerStartBtn').textContent = 'Start';
+                timerDone();
+            }
+        }, 1000);
+    });
+
+    // Reset
+    document.getElementById('timerResetBtn').addEventListener('click', resetTimer);
+
+    function playTick() {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, now);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.08);
+        } catch(e) {}
+    }
+
+    let alarmInterval = null;
+    function playAlarm() {
+        try {
+            const ctx = getAudio();
+            const now = ctx.currentTime;
+            [0, 0.2, 0.4, 0.7, 0.9, 1.1].forEach(t => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(t < 0.6 ? 880 : 1100, now + t);
+                gain.gain.setValueAtTime(0.15, now + t);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(now + t);
+                osc.stop(now + t + 0.15);
+            });
+        } catch(e) {}
+    }
+
+    function timerDone() {
+        const overlay = document.getElementById('timerDone');
+        overlay.classList.add('active', 'blink');
+        playAlarm();
+        alarmInterval = setInterval(playAlarm, 2000);
+    }
+
+    document.getElementById('timerDoneClose').addEventListener('click', () => {
+        document.getElementById('timerDone').classList.remove('active', 'blink');
+        clearInterval(alarmInterval);
+        resetTimer();
+    });
+
+    // Init timer display
+    setTimer(60);
 })();
 </script>
