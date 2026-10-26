@@ -384,6 +384,18 @@ body {
 .pt4 { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
 .pt5 { background: linear-gradient(135deg, #EC4899, #F472B6); }
 
+.pts-minus { margin-top: 3px; }
+.pm-btn {
+    flex: 1; max-width: 48px; height: 30px; border-radius: 8px; border: none;
+    font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
+    color: #fff; cursor: pointer; background: var(--bg);
+    color: var(--danger); border: 2px solid var(--danger); opacity: 0.65;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+.pm-btn:hover { transform: translateY(-3px) scale(1.08); opacity: 1; }
+.pm-btn:active { transform: translateY(-1px) scale(0.94); }
+
 /* Bottom bar */
 .bar {
     position: fixed; bottom: 0; left: 0; right: 0;
@@ -689,6 +701,13 @@ body {
                     <button class="pt-btn pt3" data-g="${i}" data-p="3">+3</button>
                     <button class="pt-btn pt4" data-g="${i}" data-p="4">+4</button>
                     <button class="pt-btn pt5" data-g="${i}" data-p="5">+5</button>
+                </div>
+                <div class="pts-row pts-minus">
+                    <button class="pm-btn" data-g="${i}" data-m="1">-1</button>
+                    <button class="pm-btn" data-g="${i}" data-m="2">-2</button>
+                    <button class="pm-btn" data-g="${i}" data-m="3">-3</button>
+                    <button class="pm-btn" data-g="${i}" data-m="4">-4</button>
+                    <button class="pm-btn" data-g="${i}" data-m="5">-5</button>
                 </div>`;
             grid.appendChild(lane);
 
@@ -707,9 +726,15 @@ body {
         });
 
         grid.addEventListener('click', e => {
-            const btn = e.target.closest('.pt-btn');
-            if (!btn || !active) return;
-            addPoints(parseInt(btn.dataset.g), parseInt(btn.dataset.p));
+            const plusBtn = e.target.closest('.pt-btn');
+            if (plusBtn && active) {
+                addPoints(parseInt(plusBtn.dataset.g), parseInt(plusBtn.dataset.p));
+                return;
+            }
+            const minusBtn = e.target.closest('.pm-btn');
+            if (minusBtn && active) {
+                subtractPoints(parseInt(minusBtn.dataset.g), parseInt(minusBtn.dataset.m));
+            }
         });
     }
 
@@ -759,6 +784,36 @@ body {
         setTimeout(() => popup.remove(), 900);
 
         if (groups[gi].score >= maxPts) setTimeout(() => endGame(), 700);
+    }
+
+    function subtractPoints(gi, pts) {
+        groups[gi].score = Math.max(0, groups[gi].score - pts);
+        const pct = Math.min(groups[gi].score / maxPts * 100, 100);
+
+        const scoreEl = document.querySelector(`[data-si="${gi}"]`);
+        scoreEl.textContent = groups[gi].score;
+        scoreEl.classList.remove('pop');
+        void scoreEl.offsetWidth;
+        scoreEl.classList.add('pop');
+
+        const track = document.querySelector(`[data-track="${gi}"]`);
+        const h = track.clientHeight;
+        const rBot = 6 + pct / 100 * (h - 60);
+        const rEl = document.querySelector(`[data-ri="${gi}"]`);
+        const fEl = document.querySelector(`[data-fi="${gi}"]`);
+
+        rEl.style.bottom = rBot + 'px';
+        fEl.style.bottom = (rBot - 20) + 'px';
+
+        document.querySelector(`[data-pi="${gi}"]`).style.width = pct + '%';
+
+        const popup = document.createElement('div');
+        popup.className = 'point-popup';
+        popup.style.color = 'var(--danger)';
+        popup.textContent = `-${pts}`;
+        popup.style.cssText += ';left:50%;top:20%;transform:translateX(-50%)';
+        scoreEl.closest('.group-lane').appendChild(popup);
+        setTimeout(() => popup.remove(), 900);
     }
 
     document.getElementById('resetBtn').addEventListener('click', () => {
