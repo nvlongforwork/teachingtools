@@ -1557,7 +1557,7 @@ body {
                     const gap=Math.PI*0.75,aS=gd+gap/2,aSpan=Math.PI*2-gap;
                     const pts=[];
                     for(let s=0;s<=20;s++){const a=aS+(s/20)*aSpan;pts.push({x:cx+Math.cos(a)*R,y:cy+Math.sin(a)*R});}
-                    obs.push({tp:'arc',cx,cy,r:R,segs:pts,col:COL,thick:TH});
+                    obs.push({tp:'arc',cx,cy,r:R,segs:pts,col:COL,thick:TH,rot:1});
                 }
             }else if(type==='bigdiamond'){
                 const dH=viewH*0.14,dW=dH*0.6;
@@ -1593,7 +1593,7 @@ body {
                     const py=sY+i*bSp,dir=i%2===0?1:-1,mg=w*0.04;
                     const drop=bSp*0.8;
                     const endMg=i%3===0?w*0.15:w*0.20;
-                    obs.push({tp:'l',x1:dir>0?mg:endMg,y1:py,x2:dir>0?w-endMg:w-mg,y2:py+drop,col:COL,thick:TH+3});
+                    obs.push({tp:'l',x1:dir>0?mg:endMg,y1:py,x2:dir>0?w-endMg:w-mg,y2:py+drop,col:COL,thick:TH+3,rot:1});
                 }
             }else if(type==='funnels'){
                 const fH=viewH*0.20,nW=BALL_R*4.5,fW=w*0.28;
@@ -1641,8 +1641,8 @@ body {
                 for(let i=0;i<nB;i++){
                     const barY=top+bSp*(i+1);
                     const tilt=bSp*0.25;
-                    if(i%2===0) obs.push({tp:'l',x1:cx-cW/2+TH,y1:barY,x2:cx+cW/2-gW,y2:barY+tilt,col:COL,thick:TH-3});
-                    else obs.push({tp:'l',x1:cx-cW/2+gW,y1:barY,x2:cx+cW/2-TH,y2:barY+tilt,col:COL,thick:TH-3});
+                    if(i%2===0) obs.push({tp:'l',x1:cx-cW/2+TH,y1:barY,x2:cx+cW/2-gW,y2:barY+tilt,col:COL,thick:TH-3,rot:1});
+                    else obs.push({tp:'l',x1:cx-cW/2+gW,y1:barY,x2:cx+cW/2-TH,y2:barY+tilt,col:COL,thick:TH-3,rot:1});
                 }
             }
         }
@@ -1654,14 +1654,14 @@ body {
             }
             const lDir=row%2===0?1:-1;
             const lx=row%2===0?w*0.15:w*0.55;
-            obs.push({tp:'l',x1:lx,y1:gapY-viewH*0.02,x2:lx+lDir*w*0.2,y2:gapY+viewH*0.02,col:COL,thick:TH-3});
+            obs.push({tp:'l',x1:lx,y1:gapY-viewH*0.02,x2:lx+lDir*w*0.2,y2:gapY+viewH*0.02,col:COL,thick:TH-3,rot:1});
         }
         const startFillY=viewH*0.4;
         for(let p=0;p<5;p++){
             obs.push({tp:'c',x:w*(0.1+p*0.8/4),y:startFillY,r:viewH*0.02,b:0.7,col:COL});
         }
-        obs.push({tp:'l',x1:w*0.15,y1:startFillY+viewH*0.06,x2:w*0.4,y2:startFillY+viewH*0.09,col:COL,thick:TH-3});
-        obs.push({tp:'l',x1:w*0.6,y1:startFillY+viewH*0.09,x2:w*0.85,y2:startFillY+viewH*0.06,col:COL,thick:TH-3});
+        obs.push({tp:'l',x1:w*0.15,y1:startFillY+viewH*0.06,x2:w*0.4,y2:startFillY+viewH*0.09,col:COL,thick:TH-3,rot:1});
+        obs.push({tp:'l',x1:w*0.6,y1:startFillY+viewH*0.09,x2:w*0.85,y2:startFillY+viewH*0.06,col:COL,thick:TH-3,rot:1});
         return obs;
     }
 
@@ -1791,6 +1791,21 @@ body {
 
         trackH=raceH*(2.0+numObs*2.0);
         raceObs=generateObstacles(numObs,raceW,trackH,raceH);
+        raceObs.forEach((ob,i)=>{
+            if(!ob.rot)return;
+            if(ob.tp==='l'){
+                ob._mx=(ob.x1+ob.x2)/2;ob._my=(ob.y1+ob.y2)/2;
+                const dx=ob.x2-ob.x1,dy=ob.y2-ob.y1;
+                ob._hl=Math.sqrt(dx*dx+dy*dy)/2;
+                ob._ba=Math.atan2(dy,dx);
+                ob._rv=(i%2===0?1:-1)*(0.4+(i%7)*0.08);
+            }
+            if(ob.tp==='arc'){
+                ob._os=ob.segs.map(p=>({dx:p.x-ob.cx,dy:p.y-ob.cy}));
+                ob._rv=(i%2===0?1:-1)*(0.25+(i%5)*0.06);
+            }
+            ob._ra=0;
+        });
         initClouds(raceW,trackH);
 
         raceBalls=names.map((name,i)=>({
@@ -1817,6 +1832,23 @@ body {
         document.getElementById('raceTimer').textContent=formatRaceTime(elapsed);
 
         const finishY=trackH-80;
+
+        raceObs.forEach(ob=>{
+            if(!ob.rot)return;
+            ob._ra+=ob._rv/60;
+            const cs=Math.cos(ob._ra),sn=Math.sin(ob._ra);
+            if(ob.tp==='l'){
+                ob.x1=ob._mx-cs*ob._hl;ob.y1=ob._my-sn*ob._hl;
+                ob.x2=ob._mx+cs*ob._hl;ob.y2=ob._my+sn*ob._hl;
+            }
+            if(ob.tp==='arc'){
+                for(let i=0;i<ob._os.length;i++){
+                    ob.segs[i].x=ob.cx+ob._os[i].dx*cs-ob._os[i].dy*sn;
+                    ob.segs[i].y=ob.cy+ob._os[i].dx*sn+ob._os[i].dy*cs;
+                }
+            }
+        });
+
         raceBalls.forEach(ball=>{
             if(ball.finished) return;
             ball.vy+=RG;ball.x+=ball.vx;ball.y+=ball.vy;
