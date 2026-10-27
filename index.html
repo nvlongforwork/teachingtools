@@ -1540,34 +1540,35 @@ body {
 
     function generateObstacles(numRows,w,totalH,viewH){
         const obs=[];
-        const secH=totalH/(numRows+2);
+        const denseRows=numRows*2;
+        const secH=totalH/(denseRows+1);
         const COL='#1a1a1a';
         const TH=13;
         const types=['rings','bigdiamond','pegboard','slides','funnels','wavymaze','gridcage'];
-        for(let row=0;row<numRows;row++){
-            const yB=secH*(row+1.3);
+        for(let row=0;row<denseRows;row++){
+            const yB=secH*(row+0.7);
             const type=types[row%types.length];
             if(type==='rings'){
-                const n=5,R=viewH*0.14,vs=R*2;
+                const n=4,R=viewH*0.09,vs=R*2.1;
                 for(let i=0;i<n;i++){
-                    const cx=(i%2===0)?w*0.28:w*0.72;
+                    const cx=(i%2===0)?w*0.3:w*0.7;
                     const cy=yB+(i-(n-1)/2)*vs;
                     const gd=(i%2===0)?Math.PI*1.3:Math.PI*1.7;
-                    const gap=Math.PI*0.7,aS=gd+gap/2,aSpan=Math.PI*2-gap;
+                    const gap=Math.PI*0.75,aS=gd+gap/2,aSpan=Math.PI*2-gap;
                     const pts=[];
                     for(let s=0;s<=20;s++){const a=aS+(s/20)*aSpan;pts.push({x:cx+Math.cos(a)*R,y:cy+Math.sin(a)*R});}
                     obs.push({tp:'arc',cx,cy,r:R,segs:pts,col:COL,thick:TH});
                 }
             }else if(type==='bigdiamond'){
-                const dH=viewH*0.2,dW=dH*0.65;
-                for(let d=0;d<3;d++){
-                    const dx=d===0?w*0.25:d===1?w*0.5:w*0.75;
-                    const dy=yB+(d===1?-dH*0.7:dH*0.3);
+                const dH=viewH*0.14,dW=dH*0.6;
+                for(let d=0;d<4;d++){
+                    const dx=w*(0.15+d*0.7/3);
+                    const dy=yB+((d%2===0)?-dH*0.4:dH*0.3);
                     const vs=[[dx,dy-dH],[dx+dW,dy],[dx,dy+dH],[dx-dW,dy]];
                     obs.push({tp:'fill',verts:vs,col:COL});
                     for(let e=0;e<4;e++){const[x1,y1]=vs[e],[x2,y2]=vs[(e+1)%4];obs.push({tp:'l',x1,y1,x2,y2,col:COL,thick:4,vis:false});}
                 }
-                const sH=dH*0.4;
+                const sH=dH*0.35;
                 obs.push({tp:'fill',verts:[[0,yB-sH*0.8],[sH*0.5,yB+sH*0.2],[0,yB+sH*1.2]],col:COL});
                 obs.push({tp:'l',x1:0,y1:yB-sH*0.8,x2:sH*0.5,y2:yB+sH*0.2,col:COL,thick:4,vis:false});
                 obs.push({tp:'l',x1:sH*0.5,y1:yB+sH*0.2,x2:0,y2:yB+sH*1.2,col:COL,thick:4,vis:false});
@@ -1575,8 +1576,8 @@ body {
                 obs.push({tp:'l',x1:w,y1:yB-sH*0.6,x2:w-sH*0.5,y2:yB+sH*0.4,col:COL,thick:4,vis:false});
                 obs.push({tp:'l',x1:w-sH*0.5,y1:yB+sH*0.4,x2:w,y2:yB+sH*1.4,col:COL,thick:4,vis:false});
             }else if(type==='pegboard'){
-                const pR=viewH*0.04,cols=7,rows=7;
-                const hSp=w/(cols+0.5),vSp=pR*2.6;
+                const pR=viewH*0.03,cols=8,rows=9;
+                const hSp=w/(cols+0.5),vSp=pR*2.3;
                 for(let r=0;r<rows;r++){
                     const off=(r%2)?hSp/2:0,nc=(r%2)?cols-1:cols;
                     for(let c=0;c<nc;c++){
@@ -1584,21 +1585,21 @@ body {
                     }
                 }
             }else if(type==='slides'){
-                const pW=w*0.12,pY=yB-secH*0.35;
+                const pW=w*0.10,pY=yB-secH*0.33;
                 obs.push({tp:'l',x1:w/2-pW,y1:pY+pW*0.7,x2:w/2,y2:pY,col:COL,thick:TH});
                 obs.push({tp:'l',x1:w/2,y1:pY,x2:w/2+pW,y2:pY+pW*0.7,col:COL,thick:TH});
-                const nB=7,sY=yB-secH*0.22,bSp=secH*0.09;
+                const nB=9,sY=yB-secH*0.24,bSp=secH*0.075;
                 for(let i=0;i<nB;i++){
                     const py=sY+i*bSp,dir=i%2===0?1:-1,mg=w*0.04;
-                    const drop=bSp*0.85;
-                    const endMg=i%3===0?w*0.18:w*0.24;
+                    const drop=bSp*0.8;
+                    const endMg=i%3===0?w*0.15:w*0.20;
                     obs.push({tp:'l',x1:dir>0?mg:endMg,y1:py,x2:dir>0?w-endMg:w-mg,y2:py+drop,col:COL,thick:TH+3});
                 }
             }else if(type==='funnels'){
-                const fH=viewH*0.28,nW=BALL_R*5,fW=w*0.32;
-                for(let f=0;f<3;f++){
-                    const fTop=yB+(f-1)*fH*1.8;
-                    const cx=f===1?w*0.35:w*0.65;
+                const fH=viewH*0.20,nW=BALL_R*4.5,fW=w*0.28;
+                for(let f=0;f<2;f++){
+                    const fTop=yB+(f-0.5)*fH*2.2;
+                    const cx=f===0?w*0.35:w*0.65;
                     for(let side=-1;side<=1;side+=2){
                         const topX=cx+side*fW,botX=cx+side*nW;
                         for(let s=0;s<8;s++){
@@ -1607,13 +1608,13 @@ body {
                         }
                     }
                 }
-                for(let p=0;p<2;p++){
-                    const pdY=yB+(p-0.5)*fH*1.4,pdW=w*0.04;
+                for(let p=0;p<3;p++){
+                    const pdY=yB+(p-1)*fH*1.1,pdW=w*0.035;
                     obs.push({tp:'l',x1:w/2-pdW,y1:pdY+pdW*0.7,x2:w/2,y2:pdY,col:COL,thick:TH-2});
                     obs.push({tp:'l',x1:w/2,y1:pdY,x2:w/2+pdW,y2:pdY+pdW*0.7,col:COL,thick:TH-2});
                 }
             }else if(type==='wavymaze'){
-                const mH=secH*0.6,amp=w*0.2,hC=BALL_R*3.5,segs=28;
+                const mH=secH*0.5,amp=w*0.18,hC=BALL_R*3.2,segs=24;
                 for(let s=0;s<segs;s++){
                     const t1=s/segs,t2=(s+1)/segs;
                     const y1=yB-mH/2+t1*mH,y2=yB-mH/2+t2*mH;
@@ -1623,12 +1624,12 @@ body {
                     obs.push({tp:'l',x1:cx1+hC,y1,x2:cx2+hC,y2,col:COL,thick:TH});
                 }
                 const tiltA=mH*0.06;
-                obs.push({tp:'l',x1:0,y1:yB-mH*0.3-tiltA,x2:w/2-amp-hC-BALL_R*2,y2:yB-mH*0.3+tiltA,col:COL,thick:TH});
-                obs.push({tp:'l',x1:w/2+amp+hC+BALL_R*2,y1:yB-mH*0.3+tiltA,x2:w,y2:yB-mH*0.3-tiltA,col:COL,thick:TH});
-                obs.push({tp:'l',x1:0,y1:yB+mH*0.15-tiltA,x2:w*0.18,y2:yB+mH*0.15+tiltA,col:COL,thick:TH});
-                obs.push({tp:'l',x1:w*0.82,y1:yB+mH*0.15+tiltA,x2:w,y2:yB+mH*0.15-tiltA,col:COL,thick:TH});
+                obs.push({tp:'l',x1:0,y1:yB-mH*0.28-tiltA,x2:w/2-amp-hC-BALL_R*2,y2:yB-mH*0.28+tiltA,col:COL,thick:TH});
+                obs.push({tp:'l',x1:w/2+amp+hC+BALL_R*2,y1:yB-mH*0.28+tiltA,x2:w,y2:yB-mH*0.28-tiltA,col:COL,thick:TH});
+                obs.push({tp:'l',x1:0,y1:yB+mH*0.12-tiltA,x2:w*0.18,y2:yB+mH*0.12+tiltA,col:COL,thick:TH});
+                obs.push({tp:'l',x1:w*0.82,y1:yB+mH*0.12+tiltA,x2:w,y2:yB+mH*0.12-tiltA,col:COL,thick:TH});
             }else if(type==='gridcage'){
-                const cW=w*0.6,cH=secH*0.5,cx=w/2;
+                const cW=w*0.55,cH=secH*0.42,cx=w/2;
                 const top=yB-cH/2,bot=yB+cH/2;
                 const wallTilt=cH*0.08;
                 obs.push({tp:'l',x1:cx-cW/2-wallTilt*0.3,y1:top,x2:cx-cW/2+wallTilt*0.3,y2:bot,col:COL,thick:TH});
@@ -1636,7 +1637,7 @@ body {
                 const bPts=[];
                 for(let s=0;s<=14;s++){const a=Math.PI+(s/14)*Math.PI;bPts.push({x:cx+Math.cos(a)*cW/2,y:bot-Math.sin(a)*cH*0.3});}
                 obs.push({tp:'arc',cx,cy:bot,r:cW/2,segs:bPts,col:COL,thick:TH});
-                const nB=7,bSp=cH/(nB+1),gW=BALL_R*6;
+                const nB=6,bSp=cH/(nB+1),gW=BALL_R*5.5;
                 for(let i=0;i<nB;i++){
                     const barY=top+bSp*(i+1);
                     const tilt=bSp*0.25;
@@ -1645,6 +1646,22 @@ body {
                 }
             }
         }
+        for(let row=0;row<denseRows-1;row++){
+            const gapY=secH*(row+0.7)+secH*0.5;
+            const np=4+row%3;
+            for(let p=0;p<np;p++){
+                obs.push({tp:'c',x:w*(0.08+p*0.84/(np-1||1))+(row%2?w*0.04:0),y:gapY+(p%2?-1:1)*viewH*0.015,r:viewH*0.022,b:0.7,col:COL});
+            }
+            const lDir=row%2===0?1:-1;
+            const lx=row%2===0?w*0.15:w*0.55;
+            obs.push({tp:'l',x1:lx,y1:gapY-viewH*0.02,x2:lx+lDir*w*0.2,y2:gapY+viewH*0.02,col:COL,thick:TH-3});
+        }
+        const startFillY=viewH*0.4;
+        for(let p=0;p<5;p++){
+            obs.push({tp:'c',x:w*(0.1+p*0.8/4),y:startFillY,r:viewH*0.02,b:0.7,col:COL});
+        }
+        obs.push({tp:'l',x1:w*0.15,y1:startFillY+viewH*0.06,x2:w*0.4,y2:startFillY+viewH*0.09,col:COL,thick:TH-3});
+        obs.push({tp:'l',x1:w*0.6,y1:startFillY+viewH*0.09,x2:w*0.85,y2:startFillY+viewH*0.06,col:COL,thick:TH-3});
         return obs;
     }
 
@@ -1772,7 +1789,7 @@ body {
         raceW=wrap.clientWidth;raceH=wrap.clientHeight;
         canvas.width=raceW;canvas.height=raceH;
 
-        trackH=raceH*(2.5+numObs*2);
+        trackH=raceH*(2.0+numObs*2.0);
         raceObs=generateObstacles(numObs,raceW,trackH,raceH);
         initClouds(raceW,trackH);
 
@@ -1830,9 +1847,9 @@ body {
                 ball.nudgeCount=(ball.nudgeCount||0);
                 if(ball.stuckFrames>40){
                     ball.nudgeCount++;
-                    if(ball.nudgeCount>=3){
-                        ball.y+=raceH*0.6;
-                        ball.x=w*0.15+Math.random()*w*0.7;
+                    if(ball.nudgeCount>=2){
+                        ball.y+=raceH*0.4;
+                        ball.x=raceW*0.15+Math.random()*raceW*0.7;
                         ball.vx=(Math.random()-0.5)*4;
                         ball.vy=5+Math.random()*3;
                         ball.nudgeCount=0;
@@ -1844,7 +1861,7 @@ body {
                 }
             }else{ball.stuckFrames=0;if(speed>2)ball.nudgeCount=Math.max(0,(ball.nudgeCount||0)-1);}
 
-            if(ball.y>=finishY-ball.r||elapsed>45000){
+            if(ball.y>=finishY-ball.r||elapsed>75000){
                 ball.finished=true;ball.y=finishY-ball.r;ball.vx=0;ball.vy=0;
                 ball.finishTime=elapsed;
                 raceRank.push(ball);
